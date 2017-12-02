@@ -1,0 +1,17 @@
+let
+    var hello : array 5 of Char;
+    var i : Integer
+in
+    begin
+    hello[0] := 'h';
+    hello[1] := 'e';
+    hello[2] := 'l';
+    hello[3] := 'l';
+    hello[4] := 'o';
+    while i < 5 do
+        begin
+        put(hello[i]);
+        i := i + 1
+        end;
+    puteol()
+    end
