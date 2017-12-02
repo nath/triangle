@@ -88,6 +88,14 @@ public final class Checker implements Visitor {
     return null;
   }
 
+  public Object visitRepeatCommand(RepeatCommand ast, Object o) {
+    ast.C.visit(this, null);
+    TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);
+    if (! eType.equals(StdEnvironment.booleanType))
+      reporter.reportError("Boolean expression expected here", "", ast.E.position);
+    return null;
+  }
+
   // Expressions
 
   // Returns the TypeDenoter denoting the type of the expression. Does

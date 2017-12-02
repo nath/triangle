@@ -92,6 +92,17 @@ public final class Encoder implements Visitor {
     return null;
   }
 
+  public Object visitRepeatCommand(RepeatCommand ast, Object o) {
+    Frame frame = (Frame) o;
+    int loopAddr;
+
+    loopAddr = nextInstrAddr;
+    ast.C.visit(this, frame);
+    ast.E.visit(this, frame);
+    emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, loopAddr);
+    return null;
+  }
+
 
   // Expressions
   public Object visitArrayExpression(ArrayExpression ast, Object o) {
