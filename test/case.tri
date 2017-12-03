@@ -1,0 +1,11 @@
+let
+    var i : Integer
+in
+    begin
+    i := 3;
+    case i of
+        1:      putint(10);
+        2:      putint(20);
+        3:      putint(30);
+        else:   putint(100)
+    end

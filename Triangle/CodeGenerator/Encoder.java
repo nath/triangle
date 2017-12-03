@@ -23,6 +23,7 @@ import TAM.Machine;
 import TAM.Instruction;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public final class Encoder implements Visitor {
 
@@ -63,6 +64,21 @@ public final class Encoder implements Visitor {
     return null;
   }
 
+  public Object visitCaseCommand(CaseCommand ast, Object o) {
+    Frame frame = (Frame) o;
+
+    int extraSize = (Integer) ast.E.visit(this, frame);
+    if (ast.E.entity instanceof KnownValue) {
+      emit(Machine.LOADLop, 0, 0, ((KnownValue) ast.E.entity).value);
+    }
+    ast.CA.visit(this, frame);
+    for (CaseAggregate curr = ast.CA; curr instanceof IntegerLiteralCaseAggregate; curr = ((IntegerLiteralCaseAggregate) curr).CA) {
+      patch(((IntegerLiteralCaseAggregate) curr).jumpAddr, nextInstrAddr);
+    }
+    emit(Machine.POPop, 0, 0, 1);
+    return null;
+  }
+
   public Object visitForCommand(ForCommand ast, Object o) {
     Frame frame = (Frame) o;
     int jumpAddr, loopAddr;
@@ -75,7 +91,7 @@ public final class Encoder implements Visitor {
       emit(Machine.LOADLop, 0, 0, ((KnownValue) ast.CD.entity).value);
       ast.CD.entity = new UnknownValue(1, frame.level, frame.size);
     }
-    emit(Machine.LOADop, extraSize, frame.level, frame.size);
+    emit(Machine.LOADop, extraSize, Machine.STr, -1);
     ast.E2.visit(this, frame);
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.geDisplacement);
     jumpAddr = nextInstrAddr;
@@ -346,7 +362,7 @@ public final class Encoder implements Visitor {
 
   // Record Aggregates
   public Object visitMultipleRecordAggregate(MultipleRecordAggregate ast,
-					     Object o) {
+                                             Object o) {
     Frame frame = (Frame) o;
     int fieldSize = ((Integer) ast.E.visit(this, frame)).intValue();
     Frame frame1 = new Frame (frame, fieldSize);
@@ -355,8 +371,34 @@ public final class Encoder implements Visitor {
   }
 
   public Object visitSingleRecordAggregate(SingleRecordAggregate ast,
-					   Object o) {
+                                           Object o) {
     return ast.E.visit(this, o);
+  }
+
+
+  // Case Aggregates
+  public Object visitIntegerLiteralCaseAggregate(IntegerLiteralCaseAggregate ast,
+                                             Object o) {
+    Frame frame = (Frame) o;
+    int jumpIfAddr, jumpPast;
+
+    emit(Machine.LOADop, 1, Machine.STr, -1);
+    jumpIfAddr = nextInstrAddr;
+    emit(Machine.JUMPIFop, Integer.parseInt(ast.IL.spelling), Machine.CBr, 0);
+    jumpPast = nextInstrAddr;
+    emit(Machine.JUMPop, 0, Machine.CBr, 0);
+    patch(jumpIfAddr, nextInstrAddr);
+    ast.C.visit(this, frame);
+    ast.jumpAddr = nextInstrAddr;
+    emit(Machine.JUMPop, 0, Machine.CBr, 0);
+    patch(jumpPast, nextInstrAddr);
+    ast.CA.visit(this, frame);
+    return null;
+  }
+
+  public Object visitElseCaseAggregate(ElseCaseAggregate ast,
+                                           Object o) {
+    return ast.C.visit(this, o);
   }
 
 

@@ -16,10 +16,14 @@ package Triangle.ContextualAnalyzer;
 
 import Triangle.AbstractSyntaxTrees.*;
 import Triangle.AbstractSyntaxTrees.Visitor;
+import Triangle.CodeGenerator.KnownValue;
 import Triangle.SyntacticAnalyzer.SourcePosition;
 import Triangle.Compiler;
 import Triangle.ErrorReporter;
 import Triangle.StdEnvironment;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 public final class Checker implements Visitor {
 
@@ -63,6 +67,14 @@ public final class Checker implements Visitor {
       reporter.reportError("Boolean expression expected here", "", ast.E.position);
     ast.C1.visit(this, null);
     ast.C2.visit(this, null);
+    return null;
+  }
+
+  public Object visitCaseCommand(CaseCommand ast, Object o) {
+    TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);
+    if (! eType.equals(StdEnvironment.integerType))
+      reporter.reportError("Integer expression expected here", "", ast.E.position);
+    ast.CA.visit(this, new ArrayList<Integer>());
     return null;
   }
 
@@ -350,6 +362,27 @@ public final class Checker implements Visitor {
     TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);
     ast.type = new SingleFieldTypeDenoter(ast.I, eType, ast.position);
     return ast.type;
+  }
+
+  // Case Aggregates
+
+  // validates the commands and unique int literals
+
+  public Object visitIntegerLiteralCaseAggregate(IntegerLiteralCaseAggregate ast, Object o) {
+    ArrayList<Integer> used = (ArrayList<Integer>) o;
+    int val = Integer.parseInt(ast.IL.spelling);
+    if (used.contains(val))
+      reporter.reportError("duplicated case", "", ast.IL.position);
+    else
+      used.add(val);
+    ast.C.visit(this, null);
+    ast.CA.visit(this, used);
+    return null;
+  }
+
+  public Object visitElseCaseAggregate(ElseCaseAggregate ast, Object o) {
+    ast.C.visit(this, null);
+    return null;
   }
 
   // Formal Parameters

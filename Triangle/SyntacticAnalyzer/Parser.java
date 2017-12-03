@@ -262,6 +262,17 @@ public class Parser {
       }
       break;
 
+      case Token.CASE:
+        {
+          acceptIt();
+          Expression eAST = parseExpression();
+          accept(Token.OF);
+          CaseAggregate caAST = parseCaseAggregate();
+          finish(commandPos);
+          commandAST = new CaseCommand(eAST, caAST, commandPos);
+        }
+        break;
+
     case Token.FOR:
       {
         acceptIt();
@@ -486,6 +497,31 @@ public class Parser {
       finish(aggregatePos);
       aggregateAST = new SingleRecordAggregate(iAST, eAST, aggregatePos);
     }
+    return aggregateAST;
+  }
+
+  CaseAggregate parseCaseAggregate() throws SyntaxError {
+    CaseAggregate aggregateAST = null; // in case there's a syntactic error
+
+    SourcePosition aggregatePos = new SourcePosition();
+    start(aggregatePos);
+
+    if (currentToken.kind == Token.INTLITERAL) {
+      IntegerLiteral ilAST = parseIntegerLiteral();
+      accept(Token.COLON);
+      Command cAST = parseSingleCommand();
+      accept(Token.SEMICOLON);
+      CaseAggregate aAST = parseCaseAggregate();
+      finish(aggregatePos);
+      aggregateAST = new IntegerLiteralCaseAggregate(ilAST, cAST, aAST, aggregatePos);
+    } else {
+      accept(Token.ELSE);
+      accept(Token.COLON);
+      Command cAST = parseSingleCommand();
+      finish(aggregatePos);
+      aggregateAST = new ElseCaseAggregate(cAST, aggregatePos);
+    }
+
     return aggregateAST;
   }
 

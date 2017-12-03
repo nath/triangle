@@ -19,6 +19,7 @@ public interface Visitor {
   // Commands
   public abstract Object visitAssignCommand(AssignCommand ast, Object o);
   public abstract Object visitCallCommand(CallCommand ast, Object o);
+  public abstract Object visitCaseCommand(CaseCommand ast, Object o);
   public abstract Object visitEmptyCommand(EmptyCommand ast, Object o);
   public abstract Object visitForCommand(ForCommand ast, Object o);
   public abstract Object visitIfCommand(IfCommand ast, Object o);
@@ -58,6 +59,10 @@ public interface Visitor {
   // Record Aggregates
   public abstract Object visitMultipleRecordAggregate(MultipleRecordAggregate ast, Object o);
   public abstract Object visitSingleRecordAggregate(SingleRecordAggregate ast, Object o);
+
+  // Case Aggregates
+  public abstract Object visitIntegerLiteralCaseAggregate(IntegerLiteralCaseAggregate ast, Object o);
+  public abstract Object visitElseCaseAggregate(ElseCaseAggregate ast, Object o);
 
   // Formal Parameters
   public abstract Object visitConstFormalParameter(ConstFormalParameter ast, Object o);

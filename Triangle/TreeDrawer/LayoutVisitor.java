@@ -41,6 +41,10 @@ public class LayoutVisitor implements Visitor {
     return layoutBinary("CallCom.", ast.I, ast.APS);
    }
 
+  public Object visitCaseCommand(CaseCommand ast, Object obj) {
+    return layoutBinary("CaseCom.", ast.E, ast.CA);
+  }
+
   public Object visitEmptyCommand(EmptyCommand ast, Object obj) {
     return layoutNullary("EmptyCom.");
   }
@@ -165,6 +169,15 @@ public class LayoutVisitor implements Visitor {
 
   public Object visitSingleRecordAggregate(SingleRecordAggregate ast, Object obj) {
     return layoutBinary("Sing.Rec.Agg.", ast.I, ast.E);
+  }
+
+  // Case Aggregates
+  public Object visitIntegerLiteralCaseAggregate(IntegerLiteralCaseAggregate ast, Object obj) {
+    return layoutTernary("IL.Case.Agg.", ast.IL, ast.C, ast.CA);
+  }
+
+  public Object visitElseCaseAggregate(ElseCaseAggregate ast, Object obj) {
+    return layoutUnary("Else.Case.Agg.", ast.C);
   }
 
 
