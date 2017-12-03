@@ -18,8 +18,8 @@ import Triangle.SyntacticAnalyzer.SourcePosition;
 
 public abstract class CaseAggregate extends AST {
 
-  public CaseAggregate(SourcePosition thePosition) {
-    super (thePosition);
-  }
+    public CaseAggregate(SourcePosition thePosition) {
+        super(thePosition);
+    }
 
 }

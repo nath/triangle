@@ -16,20 +16,18 @@ package Triangle.AbstractSyntaxTrees;
 
 import Triangle.SyntacticAnalyzer.SourcePosition;
 
-import java.util.ArrayList;
-
 public class CaseCommand extends Command {
 
-  public CaseCommand(Expression eAST, CaseAggregate caAST, SourcePosition thePosition) {
-    super (thePosition);
-    E = eAST;
-    CA = caAST;
-  }
+    public CaseCommand(Expression eAST, CaseAggregate caAST, SourcePosition thePosition) {
+        super(thePosition);
+        E = eAST;
+        CA = caAST;
+    }
 
-  public Object visit(Visitor v, Object o) {
-    return v.visitCaseCommand(this, o);
-  }
+    public Object visit(Visitor v, Object o) {
+        return v.visitCaseCommand(this, o);
+    }
 
-  public Expression E;
-  public CaseAggregate CA;
+    public Expression E;
+    public CaseAggregate CA;
 }

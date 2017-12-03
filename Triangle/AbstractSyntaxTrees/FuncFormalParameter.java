@@ -18,19 +18,19 @@ import Triangle.SyntacticAnalyzer.SourcePosition;
 
 public class FuncFormalParameter extends FormalParameter {
 
-  public FuncFormalParameter (Identifier iAST, FormalParameterSequence fpsAST,
-                       TypeDenoter tAST, SourcePosition thePosition) {
-    super (thePosition);
-    I = iAST;
-    FPS = fpsAST;
-    T = tAST;
-  }
+    public FuncFormalParameter(Identifier iAST, FormalParameterSequence fpsAST,
+                               TypeDenoter tAST, SourcePosition thePosition) {
+        super(thePosition);
+        I = iAST;
+        FPS = fpsAST;
+        T = tAST;
+    }
 
-  public Object visit(Visitor v, Object o) {
-    return v.visitFuncFormalParameter(this, o);
-  }
+    public Object visit(Visitor v, Object o) {
+        return v.visitFuncFormalParameter(this, o);
+    }
 
-  public Identifier I;
-  public FormalParameterSequence FPS;
-  public TypeDenoter T;
+    public Identifier I;
+    public FormalParameterSequence FPS;
+    public TypeDenoter T;
 }

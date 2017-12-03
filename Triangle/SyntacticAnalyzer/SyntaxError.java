@@ -16,12 +16,14 @@ package Triangle.SyntacticAnalyzer;
 
 class SyntaxError extends Exception {
 
-  SyntaxError() {
-    super();
-  };
+    SyntaxError() {
+        super();
+    }
 
-  SyntaxError (String s) {
-    super(s);
-  }
+    ;
+
+    SyntaxError(String s) {
+        super(s);
+    }
 
 }

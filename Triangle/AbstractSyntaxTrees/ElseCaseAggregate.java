@@ -18,14 +18,14 @@ import Triangle.SyntacticAnalyzer.SourcePosition;
 
 public class ElseCaseAggregate extends CaseAggregate {
 
-  public ElseCaseAggregate(Command cAST, SourcePosition thePosition) {
-    super (thePosition);
-    C = cAST;
-  }
+    public ElseCaseAggregate(Command cAST, SourcePosition thePosition) {
+        super(thePosition);
+        C = cAST;
+    }
 
-  public Object visit(Visitor v, Object o) {
-    return v.visitElseCaseAggregate(this, o);
-  }
+    public Object visit(Visitor v, Object o) {
+        return v.visitElseCaseAggregate(this, o);
+    }
 
-  public Command C;
+    public Command C;
 }

@@ -18,18 +18,18 @@ import Triangle.SyntacticAnalyzer.SourcePosition;
 
 public class VarInitialization extends Declaration {
 
-  public VarInitialization(Identifier iAST, Expression eAST,
-                           SourcePosition thePosition) {
-    super (thePosition);
-    I = iAST;
-    E = eAST;
-  }
+    public VarInitialization(Identifier iAST, Expression eAST,
+                             SourcePosition thePosition) {
+        super(thePosition);
+        I = iAST;
+        E = eAST;
+    }
 
-  public Object visit(Visitor v, Object o) {
-    return v.visitVarInitialization(this, o);
-  }
+    public Object visit(Visitor v, Object o) {
+        return v.visitVarInitialization(this, o);
+    }
 
-  public Identifier I;
-  public Expression E;
-  public TypeDenoter T;
+    public Identifier I;
+    public Expression E;
+    public TypeDenoter T;
 }

@@ -18,20 +18,20 @@ import Triangle.SyntacticAnalyzer.SourcePosition;
 
 public class IntegerLiteralCaseAggregate extends CaseAggregate {
 
-  public IntegerLiteralCaseAggregate(IntegerLiteral ilAST, Command cAST, CaseAggregate caAST,
-                               SourcePosition thePosition) {
-    super (thePosition);
-    IL = ilAST;
-    C = cAST;
-    CA = caAST;
-  }
+    public IntegerLiteralCaseAggregate(IntegerLiteral ilAST, Command cAST, CaseAggregate caAST,
+                                       SourcePosition thePosition) {
+        super(thePosition);
+        IL = ilAST;
+        C = cAST;
+        CA = caAST;
+    }
 
-  public Object visit(Visitor v, Object o) {
-    return v.visitIntegerLiteralCaseAggregate(this, o);
-  }
+    public Object visit(Visitor v, Object o) {
+        return v.visitIntegerLiteralCaseAggregate(this, o);
+    }
 
-  public IntegerLiteral IL;
-  public Command C;
-  public CaseAggregate CA;
-  public Integer jumpAddr;
+    public IntegerLiteral IL;
+    public Command C;
+    public CaseAggregate CA;
+    public Integer jumpAddr;
 }

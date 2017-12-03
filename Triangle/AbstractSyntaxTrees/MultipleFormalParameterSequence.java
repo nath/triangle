@@ -18,21 +18,21 @@ import Triangle.SyntacticAnalyzer.SourcePosition;
 
 public class MultipleFormalParameterSequence extends FormalParameterSequence {
 
-  public MultipleFormalParameterSequence (FormalParameter fpAST, FormalParameterSequence fpsAST,
-                                   SourcePosition thePosition) {
-    super (thePosition);
-    FP = fpAST;
-    FPS = fpsAST;
-  }
+    public MultipleFormalParameterSequence(FormalParameter fpAST, FormalParameterSequence fpsAST,
+                                           SourcePosition thePosition) {
+        super(thePosition);
+        FP = fpAST;
+        FPS = fpsAST;
+    }
 
-  public Object visit(Visitor v, Object o) {
-    return v.visitMultipleFormalParameterSequence(this, o);
-  }
+    public Object visit(Visitor v, Object o) {
+        return v.visitMultipleFormalParameterSequence(this, o);
+    }
 
-  public boolean equals(FormalParameterSequence fpsAST) {
-    return true;
-  }
+    public boolean equals(FormalParameterSequence fpsAST) {
+        return true;
+    }
 
-  public FormalParameter FP;
-  public FormalParameterSequence FPS;
+    public FormalParameter FP;
+    public FormalParameterSequence FPS;
 }
