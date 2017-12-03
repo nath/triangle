@@ -625,10 +625,17 @@ public class Parser {
       {
         acceptIt();
         Identifier iAST = parseIdentifier();
-        accept(Token.COLON);
-        TypeDenoter tAST = parseTypeDenoter();
-        finish(declarationPos);
-        declarationAST = new VarDeclaration(iAST, tAST, declarationPos);
+        if (currentToken.kind == Token.COLON) {
+          acceptIt();
+          TypeDenoter tAST = parseTypeDenoter();
+          finish(declarationPos);
+          declarationAST = new VarDeclaration(iAST, tAST, declarationPos);
+        } else {
+          accept(Token.BECOMES);
+          Expression eAST = parseExpression();
+          finish(declarationPos);
+          declarationAST = new VarInitialization(iAST, eAST, declarationPos);
+        }
       }
       break;
 

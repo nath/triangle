@@ -68,9 +68,6 @@ public final class Encoder implements Visitor {
     Frame frame = (Frame) o;
 
     int extraSize = (Integer) ast.E.visit(this, frame);
-    if (ast.E.entity instanceof KnownValue) {
-      emit(Machine.LOADLop, 0, 0, ((KnownValue) ast.E.entity).value);
-    }
     ast.CA.visit(this, frame);
     for (CaseAggregate curr = ast.CA; curr instanceof IntegerLiteralCaseAggregate; curr = ((IntegerLiteralCaseAggregate) curr).CA) {
       patch(((IntegerLiteralCaseAggregate) curr).jumpAddr, nextInstrAddr);
@@ -339,6 +336,17 @@ public final class Encoder implements Visitor {
 
     extraSize = ((Integer) ast.T.visit(this, null)).intValue();
     emit(Machine.PUSHop, 0, 0, extraSize);
+    ast.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size);
+    writeTableDetails(ast);
+    return new Integer(extraSize);
+  }
+
+  public Object visitVarInitialization(VarInitialization ast, Object o) {
+    Frame frame = (Frame) o;
+    int extraSize;
+
+    extraSize = (Integer) ast.T.visit(this, null);
+    ast.E.visit(this, frame);
     ast.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size);
     writeTableDetails(ast);
     return new Integer(extraSize);

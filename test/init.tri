@@ -1,0 +1,9 @@
+let
+    var i := 3
+in
+    begin
+    putint(i);
+    puteol();
+    i := i + 2;
+    putint(i)
+    end

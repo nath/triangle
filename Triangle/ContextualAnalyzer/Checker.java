@@ -322,6 +322,16 @@ public final class Checker implements Visitor {
     return null;
   }
 
+  public Object visitVarInitialization(VarInitialization ast, Object o) {
+    ast.T = (TypeDenoter) ast.E.visit(this, null);
+    idTable.enter (ast.I.spelling, ast);
+    if (ast.duplicated)
+      reporter.reportError ("identifier \"%\" already declared",
+              ast.I.spelling, ast.position);
+
+    return null;
+  }
+
   // Array Aggregates
 
   // Returns the TypeDenoter for the Array Aggregate. Does not use the
@@ -697,6 +707,9 @@ public final class Checker implements Visitor {
         ast.variable = false;
       } else if (binding instanceof VarDeclaration) {
         ast.type = ((VarDeclaration) binding).T;
+        ast.variable = true;
+      } else if (binding instanceof VarInitialization) {
+        ast.type = ((VarInitialization) binding).T;
         ast.variable = true;
       } else if (binding instanceof ConstFormalParameter) {
         ast.type = ((ConstFormalParameter) binding).T;

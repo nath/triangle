@@ -151,6 +151,10 @@ public class LayoutVisitor implements Visitor {
     return layoutBinary("VarDecl.", ast.I, ast.T);
   }
 
+  public Object visitVarInitialization(VarInitialization ast, Object obj) {
+    return layoutTernary("VarInit.", ast.I, ast.E, ast.T);
+  }
+
 
   // Array Aggregates
   public Object visitMultipleArrayAggregate(MultipleArrayAggregate ast, Object obj) {
