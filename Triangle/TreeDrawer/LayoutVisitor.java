@@ -49,6 +49,8 @@ public class LayoutVisitor implements Visitor {
     return layoutTernary("IfCom.", ast.E, ast.C1, ast.C2);
   }
 
+  public Object visitForCommand(ForCommand ast, Object obj) { return layoutQuaternary("ForCom.", ast.I, ast.E1, ast.E2, ast.C); }
+
   public Object visitLetCommand(LetCommand ast, Object obj) {
     return layoutBinary("LetCom.", ast.D, ast.C);
   }

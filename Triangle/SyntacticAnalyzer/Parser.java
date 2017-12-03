@@ -262,6 +262,21 @@ public class Parser {
       }
       break;
 
+    case Token.FOR:
+      {
+        acceptIt();
+        Identifier iAST = parseIdentifier();
+        accept(Token.FROM);
+        Expression e1AST = parseExpression();
+        accept(Token.TO);
+        Expression e2AST = parseExpression();
+        accept(Token.DO);
+        Command cAST = parseCommand();
+        finish(commandPos);
+        commandAST = new ForCommand(iAST, e1AST, e2AST, cAST, commandPos);
+      }
+      break;
+
     case Token.WHILE:
       {
         acceptIt();

@@ -66,6 +66,21 @@ public final class Checker implements Visitor {
     return null;
   }
 
+  public Object visitForCommand(ForCommand ast, Object o) {
+    idTable.openScope();
+    ast.CD = new ConstDeclaration(ast.I, ast.E1, ast.position);
+    ast.CD.visit(this, null);
+    TypeDenoter e1Type = (TypeDenoter) ast.E1.visit(this, null);
+    TypeDenoter e2Type = (TypeDenoter) ast.E2.visit(this, null);
+    if(! e1Type.equals(StdEnvironment.integerType))
+      reporter.reportError("Integer expression expected here", "", ast.E1.position);
+    if(! e2Type.equals(StdEnvironment.integerType))
+      reporter.reportError("Integer expression expected here", "", ast.E2.position);
+    ast.C.visit(this, null);
+    idTable.closeScope();
+    return null;
+  }
+
   public Object visitLetCommand(LetCommand ast, Object o) {
     idTable.openScope();
     ast.D.visit(this, null);

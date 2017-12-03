@@ -1,0 +1,4 @@
+for i from 1 to 10 do
+    begin
+    putint(i);
+    end

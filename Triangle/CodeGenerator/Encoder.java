@@ -63,6 +63,34 @@ public final class Encoder implements Visitor {
     return null;
   }
 
+  public Object visitForCommand(ForCommand ast, Object o) {
+    Frame frame = (Frame) o;
+    int jumpAddr, loopAddr;
+
+
+    int extraSize = (Integer) ast.CD.visit(this, frame);
+    loopAddr = nextInstrAddr;
+    if (ast.CD.entity instanceof KnownValue) {
+      extraSize = 1;
+      emit(Machine.LOADLop, 0, 0, ((KnownValue) ast.CD.entity).value);
+      ast.CD.entity = new UnknownValue(1, frame.level, frame.size);
+    }
+    emit(Machine.LOADop, extraSize, frame.level, frame.size);
+    ast.E2.visit(this, frame);
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.geDisplacement);
+    jumpAddr = nextInstrAddr;
+    emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, 0);
+    ast.C.visit(this, new Frame(frame, extraSize));
+    emit(Machine.LOADop, extraSize, frame.level, frame.size);
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.succDisplacement);
+    emit(Machine.STOREop, extraSize, frame.level, frame.size);
+    emit(Machine.JUMPop, 0, Machine.CBr, loopAddr);
+    patch(jumpAddr, nextInstrAddr);
+    if (extraSize > 0)
+      emit(Machine.POPop, 0, 0, extraSize);
+    return null;
+  }
+
   public Object visitLetCommand(LetCommand ast, Object o) {
     Frame frame = (Frame) o;
     int extraSize = ((Integer) ast.D.visit(this, frame)).intValue();
