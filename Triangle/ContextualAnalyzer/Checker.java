@@ -32,7 +32,7 @@ public final class Checker implements Visitor {
         TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);
         if (!ast.V.variable)
             reporter.reportError("LHS of assignment is not a variable", "", ast.V.position);
-        if (!eType.equals(vType))
+        if (!((vType.recursive && eType == StdEnvironment.nilType) || eType.equals(vType)))
             reporter.reportError("assignment incompatibilty", "", ast.position);
         return null;
     }
@@ -214,6 +214,11 @@ public final class Checker implements Visitor {
         return ast.type;
     }
 
+    public Object visitNilExpression(NilExpression ast, Object o) {
+        ast.type = StdEnvironment.nilType;
+        return ast.type;
+    }
+
     public Object visitRecordExpression(RecordExpression ast, Object o) {
         FieldTypeDenoter rType = (FieldTypeDenoter) ast.RA.visit(this, null);
         ast.type = new RecordTypeDenoter(rType, ast.position);
@@ -301,6 +306,16 @@ public final class Checker implements Visitor {
         if (ast.duplicated)
             reporter.reportError("identifier \"%\" already declared",
                     ast.I.spelling, ast.position);
+        return null;
+    }
+
+    public Object visitRecTypeDeclaration(RecTypeDeclaration ast, Object o) {
+        idTable.enter(ast.I.spelling, ast);
+        if (ast.duplicated)
+            reporter.reportError("identifier \"%\" already declared",
+                    ast.I.spelling, ast.position);
+        ast.T = (TypeDenoter) ast.T.visit(this, null);
+        //ast.T.recursive = true;
         return null;
     }
 
@@ -580,6 +595,10 @@ public final class Checker implements Visitor {
         return StdEnvironment.anyType;
     }
 
+    public Object visitNilTypeDenoter(NilTypeDenoter ast, Object o) {
+        return StdEnvironment.nilType;
+    }
+
     public Object visitArrayTypeDenoter(ArrayTypeDenoter ast, Object o) {
         ast.T = (TypeDenoter) ast.T.visit(this, null);
         if ((Integer.valueOf(ast.IL.spelling).intValue()) == 0)
@@ -609,6 +628,11 @@ public final class Checker implements Visitor {
                     ast.I.spelling, ast.I.position);
             return StdEnvironment.errorType;
         }
+
+        if (binding instanceof RecTypeDeclaration) {
+            ((TypeDeclaration) binding).T.recursive = true;
+        }
+
         return ((TypeDeclaration) binding).T;
     }
 
@@ -622,13 +646,20 @@ public final class Checker implements Visitor {
     }
 
     public Object visitMultipleFieldTypeDenoter(MultipleFieldTypeDenoter ast, Object o) {
-        ast.T = (TypeDenoter) ast.T.visit(this, null);
-        ast.FT.visit(this, null);
+        if (!ast.T.recursive) {
+            ast.T = (TypeDenoter) ast.T.visit(this, null);
+        }        ast.FT.visit(this, null);
         return ast;
     }
 
     public Object visitSingleFieldTypeDenoter(SingleFieldTypeDenoter ast, Object o) {
-        ast.T = (TypeDenoter) ast.T.visit(this, null);
+        if (!ast.T.recursive) {
+            ast.T = (TypeDenoter) ast.T.visit(this, null);
+        }
+        return ast;
+    }
+
+    public Object visitRecFieldTypeDenoter(RecFieldTypeDenoter ast, Object o) {
         return ast;
     }
 
@@ -895,6 +926,7 @@ public final class Checker implements Visitor {
         StdEnvironment.charType = new CharTypeDenoter(dummyPos);
         StdEnvironment.anyType = new AnyTypeDenoter(dummyPos);
         StdEnvironment.errorType = new ErrorTypeDenoter(dummyPos);
+        StdEnvironment.nilType = new NilTypeDenoter(dummyPos);
 
         StdEnvironment.booleanDecl = declareStdType("Boolean", StdEnvironment.booleanType);
         StdEnvironment.falseDecl = declareStdConst("false", StdEnvironment.booleanType);

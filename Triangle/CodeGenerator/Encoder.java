@@ -218,6 +218,12 @@ public final class Encoder implements Visitor {
         return valSize;
     }
 
+    public Object visitNilExpression(NilExpression ast, Object o) {
+        Frame frame = (Frame) o;
+        emit(Machine.LOADLop, 0, 0, 0);
+        return 1;
+    }
+
     public Object visitRecordExpression(RecordExpression ast, Object o) {
         ast.type.visit(this, null);
         return ast.RA.visit(this, o);
@@ -322,6 +328,12 @@ public final class Encoder implements Visitor {
     public Object visitTypeDeclaration(TypeDeclaration ast, Object o) {
         // just to ensure the type's representation is decided
         ast.T.visit(this, null);
+        return new Integer(0);
+    }
+
+    public Object visitRecTypeDeclaration(RecTypeDeclaration ast, Object o) {
+        // just to ensure the type's representation is decided
+        //ast.T.visit(this, null);
         return new Integer(0);
     }
 
@@ -576,6 +588,10 @@ public final class Encoder implements Visitor {
         return new Integer(0);
     }
 
+    public Object visitNilTypeDenoter(NilTypeDenoter ast, Object o) {
+        return new Integer(0);
+    }
+
     public Object visitSimpleTypeDenoter(SimpleTypeDenoter ast,
                                          Object o) {
         return new Integer(0);
@@ -590,6 +606,11 @@ public final class Encoder implements Visitor {
     }
 
     public Object visitRecordTypeDenoter(RecordTypeDenoter ast, Object o) {
+        if (ast.recursive) {
+            ast.entity = new TypeRepresentation(1);
+            return 1;
+        }
+
         int typeSize;
         if (ast.entity == null) {
             typeSize = ((Integer) ast.FT.visit(this, new Integer(0))).intValue();

@@ -104,6 +104,10 @@ public class LayoutVisitor implements Visitor {
         return layoutBinary("LetExpr.", ast.D, ast.E);
     }
 
+    public Object visitNilExpression(NilExpression ast, Object obj) {
+        return layoutNullary("NilExpr.");
+    }
+
     public Object visitRecordExpression(RecordExpression ast, Object obj) {
         return layoutUnary("Rec.Expr.", ast.RA);
     }
@@ -140,6 +144,10 @@ public class LayoutVisitor implements Visitor {
 
     public Object visitTypeDeclaration(TypeDeclaration ast, Object obj) {
         return layoutBinary("TypeDecl.", ast.I, ast.T);
+    }
+
+    public Object visitRecTypeDeclaration(RecTypeDeclaration ast, Object obj) {
+        return layoutBinary("RecTypeDecl.", ast.I, ast.T);
     }
 
     public Object visitUnaryOperatorDeclaration(UnaryOperatorDeclaration ast, Object obj) {
@@ -267,6 +275,10 @@ public class LayoutVisitor implements Visitor {
         return layoutNullary("error");
     }
 
+    public Object visitNilTypeDenoter(NilTypeDenoter ast, Object obj) {
+        return layoutNullary("nil");
+    }
+
     public Object visitSimpleTypeDenoter(SimpleTypeDenoter ast, Object obj) {
         return layoutUnary("Sim.TypeD.", ast.I);
     }
@@ -276,6 +288,9 @@ public class LayoutVisitor implements Visitor {
     }
 
     public Object visitRecordTypeDenoter(RecordTypeDenoter ast, Object obj) {
+        if (ast.recursive) {
+            return layoutNullary("Recursive.Rec.");
+        }
         return layoutUnary("Rec.TypeD.", ast.FT);
     }
 

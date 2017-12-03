@@ -1,5 +1,5 @@
 /*
- * @(#)TypeDenoter.java                        2.0 1999/08/11
+ * @(#)TypeDeclaration.java                        2.0 1999/08/11
  *
  * Copyright (C) 1999 D.A. Watt and D.F. Brown
  * Dept. of Computing Science, University of Glasgow, Glasgow G12 8QQ Scotland
@@ -16,15 +16,14 @@ package Triangle.AbstractSyntaxTrees;
 
 import Triangle.SyntacticAnalyzer.SourcePosition;
 
-public abstract class TypeDenoter extends AST {
+public class RecTypeDeclaration extends TypeDeclaration {
 
-    public TypeDenoter(SourcePosition thePosition) {
-        super(thePosition);
-        recursive = false;
+    public RecTypeDeclaration(Identifier iAST, TypeDenoter tAST,
+                              SourcePosition thePosition) {
+        super(iAST, tAST, thePosition);
     }
 
-    public abstract boolean equals(Object obj);
-
-    public boolean recursive;
-
+    public Object visit(Visitor v, Object o) {
+        return v.visitRecTypeDeclaration(this, o);
+    }
 }

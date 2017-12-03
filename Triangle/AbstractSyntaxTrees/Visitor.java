@@ -55,6 +55,8 @@ public interface Visitor {
 
     public abstract Object visitLetExpression(LetExpression ast, Object o);
 
+    public abstract Object visitNilExpression(NilExpression ast, Object o);
+
     public abstract Object visitRecordExpression(RecordExpression ast, Object o);
 
     public abstract Object visitUnaryExpression(UnaryExpression ast, Object o);
@@ -73,6 +75,8 @@ public interface Visitor {
     public abstract Object visitSequentialDeclaration(SequentialDeclaration ast, Object o);
 
     public abstract Object visitTypeDeclaration(TypeDeclaration ast, Object o);
+
+    public abstract Object visitRecTypeDeclaration(RecTypeDeclaration ast, Object o);
 
     public abstract Object visitUnaryOperatorDeclaration(UnaryOperatorDeclaration ast, Object o);
 
@@ -136,6 +140,8 @@ public interface Visitor {
 
     public abstract Object visitErrorTypeDenoter(ErrorTypeDenoter ast, Object o);
 
+    public abstract Object visitNilTypeDenoter(NilTypeDenoter ast, Object o);
+
     public abstract Object visitSimpleTypeDenoter(SimpleTypeDenoter ast, Object o);
 
     public abstract Object visitIntTypeDenoter(IntTypeDenoter ast, Object o);
@@ -145,6 +151,8 @@ public interface Visitor {
     public abstract Object visitMultipleFieldTypeDenoter(MultipleFieldTypeDenoter ast, Object o);
 
     public abstract Object visitSingleFieldTypeDenoter(SingleFieldTypeDenoter ast, Object o);
+
+    //public abstract Object visitRecFieldTypeDenoter(RecFieldTypeDenoter ast, Object o);
 
     // Literals, Identifiers and Operators
     public abstract Object visitCharacterLiteral(CharacterLiteral ast, Object o);

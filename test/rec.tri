@@ -1,0 +1,6 @@
+let
+    rec type IntList ~
+        record head: Integer, tail: IntList end;
+    var test : IntList
+in
+    test := nil

@@ -357,6 +357,13 @@ public class Parser {
             }
             break;
 
+            case Token.NIL: {
+                acceptIt();
+                finish(expressionPos);
+                expressionAST = new NilExpression(expressionPos);
+            }
+            break;
+
             default:
                 expressionAST = parseSecondaryExpression();
                 break;
@@ -655,6 +662,17 @@ public class Parser {
                 TypeDenoter tAST = parseTypeDenoter();
                 finish(declarationPos);
                 declarationAST = new TypeDeclaration(iAST, tAST, declarationPos);
+            }
+            break;
+
+            case Token.REC: {
+                acceptIt();
+                accept(Token.TYPE);
+                Identifier iAST = parseIdentifier();
+                accept(Token.IS);
+                TypeDenoter tAST = parseTypeDenoter();
+                finish(declarationPos);
+                declarationAST = new RecTypeDeclaration(iAST, tAST, declarationPos);
             }
             break;
 
