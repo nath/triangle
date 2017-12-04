@@ -1,0 +1,6 @@
+let
+    var arr : array 4 of Integer;
+
+    func getFour () : Integer ~ 4
+in
+    putint(arr[getFour()])

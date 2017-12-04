@@ -359,6 +359,7 @@ public final class Encoder implements Visitor {
         extraSize = ((Integer) ast.T.visit(this, null)).intValue();
         emit(Machine.PUSHop, 0, 0, extraSize);
         ast.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size);
+        ((KnownAddress) ast.entity).arrLen = extraSize / ((ArrayTypeDenoter) ast.T).T.entity.size;
         writeTableDetails(ast);
         return new Integer(extraSize);
     }
@@ -754,12 +755,18 @@ public final class Encoder implements Visitor {
         int elemSize, indexSize;
 
         baseObject = (RuntimeEntity) ast.V.visit(this, frame);
+        int arrLen = baseObject instanceof KnownAddress ? ((KnownAddress) baseObject).arrLen : ((UnknownValue) baseObject).size;
         ast.offset = ast.V.offset;
         ast.indexed = ast.V.indexed;
         elemSize = ((Integer) ast.type.visit(this, null)).intValue();
         if (ast.E instanceof IntegerExpression) {
             IntegerLiteral IL = ((IntegerExpression) ast.E).IL;
             ast.offset = ast.offset + Integer.parseInt(IL.spelling) * elemSize;
+            emit(Machine.LOADLop, 0, 0, Integer.parseInt(IL.spelling));
+            emit(Machine.LOADLop, 0, 0, 0);
+            emit(Machine.LOADLop, 0, 0, arrLen);
+            emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.rangecheckDisplacement);
+            emit(Machine.POPop, 0, 0, 1);
         } else {
             // v-name is indexed by a proper expression, not a literal
             if (ast.indexed)
@@ -774,6 +781,10 @@ public final class Encoder implements Visitor {
                 emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
             else
                 ast.indexed = true;
+
+            emit(Machine.LOADLop, 0, 0, 0);
+            emit(Machine.LOADLop, 0, 0, arrLen);
+            emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.rangecheckDisplacement);
         }
         return baseObject;
     }

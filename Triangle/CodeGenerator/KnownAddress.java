@@ -27,5 +27,6 @@ public class KnownAddress extends RuntimeEntity {
     }
 
     public ObjectAddress address;
+    public int arrLen;
 
 }

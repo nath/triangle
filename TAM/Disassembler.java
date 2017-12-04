@@ -226,6 +226,9 @@ public class Disassembler {
             case Machine.disposeDisplacement:
                 System.out.print("dispose ");
                 break;
+            case Machine.rangecheckDisplacement:
+                System.out.print("rangecheck ");
+                break;
         }
     }
 

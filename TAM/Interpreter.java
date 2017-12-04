@@ -44,7 +44,7 @@ public class Interpreter {
     final static int
             running = 0, halted = 1, failedDataStoreFull = 2, failedInvalidCodeAddress = 3,
             failedInvalidInstruction = 4, failedOverflow = 5, failedZeroDivide = 6,
-            failedIOError = 7;
+            failedIOError = 7, failedRangecheckError = 8;
 
     static long
             accumulator;
@@ -205,6 +205,9 @@ public class Interpreter {
                 break;
             case failedIOError:
                 System.out.println("Program has failed due to an IO error.");
+                break;
+            case failedRangecheckError:
+                System.out.println("Program has failed due to a rangecheck.");
                 break;
         }
         if (status != halted)
@@ -427,6 +430,11 @@ public class Interpreter {
                 break;
             case Machine.disposeDisplacement:
                 ST = ST - 1; // no action taken at present
+                break;
+            case Machine.rangecheckDisplacement:
+                ST = ST - 2;
+                if (!(data[ST] <= data[ST-1] && data[ST-1] < data[ST+1]))
+                    status = failedRangecheckError;
                 break;
         }
     }

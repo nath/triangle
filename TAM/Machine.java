@@ -132,6 +132,7 @@ public final class Machine {
             getintDisplacement = 25,
             putintDisplacement = 26,
             newDisplacement = 27,
-            disposeDisplacement = 28;
+            disposeDisplacement = 28,
+            rangecheckDisplacement = 29;
 
 }
