@@ -20,6 +20,7 @@ import Triangle.AbstractSyntaxTrees.*;
 import Triangle.ErrorReporter;
 import Triangle.StdEnvironment;
 
+import javax.crypto.Mac;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -226,7 +227,16 @@ public final class Encoder implements Visitor {
 
     public Object visitRecordExpression(RecordExpression ast, Object o) {
         ast.type.visit(this, null);
-        return ast.RA.visit(this, o);
+        Integer valSize = (Integer) ast.RA.visit(this, o);
+        if (ast.type.recursive) {
+            emit(Machine.LOADLop, 0, 0, valSize);
+            emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.newDisplacement);
+            emit(Machine.LOADop, valSize + 1, Machine.STr, -1 - valSize);
+            emit(Machine.STOREIop, valSize, 0, 0);
+            emit(Machine.POPop, 1, 0, valSize);
+            return 1;
+        }
+        return valSize;
     }
 
     public Object visitUnaryExpression(UnaryExpression ast, Object o) {
@@ -589,7 +599,7 @@ public final class Encoder implements Visitor {
     }
 
     public Object visitNilTypeDenoter(NilTypeDenoter ast, Object o) {
-        return new Integer(0);
+        return new Integer(1);
     }
 
     public Object visitSimpleTypeDenoter(SimpleTypeDenoter ast,
@@ -606,14 +616,20 @@ public final class Encoder implements Visitor {
     }
 
     public Object visitRecordTypeDenoter(RecordTypeDenoter ast, Object o) {
+        int typeSize;
+
         if (ast.recursive) {
-            ast.entity = new TypeRepresentation(1);
+            if (ast.entity == null) {
+                ast.entity = new UnknownAddress(0, 0, 0); //dummy
+                typeSize = (Integer) ast.FT.visit(this, 0);
+                ast.entity = new UnknownAddress(typeSize, 0, 0);
+                writeTableDetails(ast);
+            }
             return 1;
         }
-
-        int typeSize;
-        if (ast.entity == null) {
+        else if (ast.entity == null) {
             typeSize = ((Integer) ast.FT.visit(this, new Integer(0))).intValue();
+            ast.recursive = ast.FT.recursive;
             ast.entity = new TypeRepresentation(typeSize);
             writeTableDetails(ast);
         } else
@@ -636,6 +652,7 @@ public final class Encoder implements Visitor {
 
         Integer offset1 = new Integer(offset + fieldSize);
         int recSize = ((Integer) ast.FT.visit(this, offset1)).intValue();
+        ast.recursive = ast.T.recursive || ast.T == StdEnvironment.nilType || ast.FT.recursive;
         return new Integer(fieldSize + recSize);
     }
 
@@ -650,6 +667,8 @@ public final class Encoder implements Visitor {
             writeTableDetails(ast);
         } else
             fieldSize = ast.entity.size;
+
+        ast.recursive = ast.T.recursive || ast.T == StdEnvironment.nilType;
 
         return new Integer(fieldSize);
     }
@@ -715,7 +734,9 @@ public final class Encoder implements Visitor {
     public Object visitDotVname(DotVname ast, Object o) {
         Frame frame = (Frame) o;
         RuntimeEntity baseObject = (RuntimeEntity) ast.V.visit(this, frame);
-        ast.offset = ast.V.offset + ((Field) ast.I.decl.entity).fieldOffset;
+        ast.offset =  ((Field) ast.I.decl.entity).fieldOffset;
+        if (!ast.V.type.recursive)
+            ast.offset += ast.V.offset;
         // I.decl points to the appropriate record field
         ast.indexed = ast.V.indexed;
         return baseObject;
@@ -926,7 +947,7 @@ public final class Encoder implements Visitor {
         }
     }
 
-    // Generates code to fetch the value of a named constant or variable
+    // Generates code to store the value of a named constant or variable
     // and push it on to the stack.
     // currentLevel is the routine level where the vname occurs.
     // frameSize is the anticipated size of the local stack frame when
@@ -934,8 +955,10 @@ public final class Encoder implements Visitor {
     // valSize is the size of the constant or variable's value.
 
     private void encodeStore(Vname V, Frame frame, int valSize) {
-
         RuntimeEntity baseObject = (RuntimeEntity) V.visit(this, frame);
+
+        if (V.type.recursive) valSize = 1;
+
         // If indexed = true, code will have been generated to load an index value.
         if (valSize > 255) {
             reporter.reportRestriction("can't store values larger than 255 words");
@@ -974,8 +997,17 @@ public final class Encoder implements Visitor {
     // valSize is the size of the constant or variable's value.
 
     private void encodeFetch(Vname V, Frame frame, int valSize) {
-
         RuntimeEntity baseObject = (RuntimeEntity) V.visit(this, frame);
+
+        if (V instanceof DotVname && ((DotVname) V).V.type.recursive) {
+            DotVname DV = (DotVname) V;
+            encodeFetch(DV.V, new Frame(frame, 1), 1);
+            emit(Machine.LOADLop, 0, 0, V.offset);
+            emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
+            emit(Machine.LOADIop, valSize, 0, 0);
+            return;
+        }
+
         // If indexed = true, code will have been generated to load an index value.
         if (valSize > 255) {
             reporter.reportRestriction("can't load values larger than 255 words");

@@ -452,11 +452,19 @@ public class Parser {
             }
             break;
 
-            case Token.LPAREN:
+            case Token.LPAREN: {
                 acceptIt();
                 expressionAST = parseExpression();
                 accept(Token.RPAREN);
-                break;
+            }
+            break;
+
+            case Token.NIL: {
+                acceptIt();
+                finish(expressionPos);
+                expressionAST = new NilExpression(expressionPos);
+            }
+            break;
 
             default:
                 syntacticError("\"%\" cannot start an expression",
@@ -869,6 +877,13 @@ public class Parser {
                 Identifier iAST = parseIdentifier();
                 finish(actualPos);
                 actualAST = new FuncActualParameter(iAST, actualPos);
+            }
+            break;
+
+            case Token.NIL: {
+                acceptIt();
+                finish(actualPos);
+                actualAST = new ConstActualParameter(new NilExpression(actualPos), actualPos);
             }
             break;
 

@@ -147,7 +147,7 @@ public final class Checker implements Visitor {
             BinaryOperatorDeclaration bbinding = (BinaryOperatorDeclaration) binding;
             if (bbinding.ARG1 == StdEnvironment.anyType) {
                 // this operator must be "=" or "\="
-                if (!e1Type.equals(e2Type))
+                if (!(e1Type.equals(e2Type) || (e1Type.recursive && e2Type == StdEnvironment.nilType) || (e2Type.recursive && e1Type == StdEnvironment.nilType)))
                     reporter.reportError("incompatible argument types for \"%\"",
                             ast.O.spelling, ast.position);
             } else if (!e1Type.equals(bbinding.ARG1))
@@ -477,7 +477,7 @@ public final class Checker implements Visitor {
         if (!(fp instanceof ConstFormalParameter))
             reporter.reportError("const actual parameter not expected here", "",
                     ast.position);
-        else if (!eType.equals(((ConstFormalParameter) fp).T))
+        else if (!(eType.equals(((ConstFormalParameter) fp).T) || eType == StdEnvironment.nilType && (((ConstFormalParameter) fp).T).recursive))
             reporter.reportError("wrong type for const actual parameter", "",
                     ast.E.position);
         return null;

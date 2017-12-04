@@ -14,6 +14,7 @@
 
 package Triangle.AbstractSyntaxTrees;
 
+import Triangle.StdEnvironment;
 import Triangle.SyntacticAnalyzer.SourcePosition;
 
 public class MultipleFieldTypeDenoter extends FieldTypeDenoter {
@@ -34,7 +35,7 @@ public class MultipleFieldTypeDenoter extends FieldTypeDenoter {
         if (obj != null && obj instanceof MultipleFieldTypeDenoter) {
             MultipleFieldTypeDenoter ft = (MultipleFieldTypeDenoter) obj;
             return (this.I.spelling.compareTo(ft.I.spelling) == 0) &&
-                    this.T.equals(ft.T) &&
+                    ((this.T.recursive  && ft.T.recursive) || ft.T == StdEnvironment.nilType || this.T == StdEnvironment.nilType || this.T.equals(ft.T)) &&
                     this.FT.equals(ft.FT);
         } else
             return false;

@@ -1,6 +1,21 @@
 let
     rec type IntList ~
         record head: Integer, tail: IntList end;
-    var test : IntList
+
+    func cons (n: Integer, ns: IntList): IntList ~
+        {head ~ n, tail ~ ns};
+
+    proc putints (ns: IntList) ~
+        if ns \= nil then
+            begin
+            putint(ns.head); put(' ');
+            putints(ns.tail)
+            end
+        else ;
+
+    var primes: IntList
 in
-    test := nil
+    begin
+    primes := cons(2, cons(3, cons(5, cons(7, cons(11, nil)))));
+    putints(primes)
+    end
