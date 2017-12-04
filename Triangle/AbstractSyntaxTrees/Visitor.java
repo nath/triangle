@@ -70,6 +70,8 @@ public interface Visitor {
 
     public abstract Object visitFuncDeclaration(FuncDeclaration ast, Object o);
 
+    public abstract Object visitOpFuncDeclaration(OpFuncDeclaration ast, Object o);
+
     public abstract Object visitProcDeclaration(ProcDeclaration ast, Object o);
 
     public abstract Object visitSequentialDeclaration(SequentialDeclaration ast, Object o);

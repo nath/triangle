@@ -134,6 +134,10 @@ public class LayoutVisitor implements Visitor {
         return layoutQuaternary("FuncDecl.", ast.I, ast.FPS, ast.T, ast.E);
     }
 
+    public Object visitOpFuncDeclaration(OpFuncDeclaration ast, Object obj) {
+        return layoutQuaternary("OpFuncDecl.", ast.O, ast.FPS, ast.T, ast.E);
+    }
+
     public Object visitProcDeclaration(ProcDeclaration ast, Object obj) {
         return layoutTernary("ProcDecl.", ast.I, ast.FPS, ast.C);
     }

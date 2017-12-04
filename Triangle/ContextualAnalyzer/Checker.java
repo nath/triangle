@@ -19,6 +19,7 @@ import Triangle.ErrorReporter;
 import Triangle.StdEnvironment;
 import Triangle.SyntacticAnalyzer.SourcePosition;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public final class Checker implements Visitor {
@@ -141,22 +142,34 @@ public final class Checker implements Visitor {
         if (binding == null)
             reportUndeclared(ast.O);
         else {
-            if (!(binding instanceof BinaryOperatorDeclaration))
+            if (!(binding instanceof BinaryOperatorDeclaration || (binding instanceof OpFuncDeclaration && ((OpFuncDeclaration) binding).arity == 2)))
                 reporter.reportError("\"%\" is not a binary operator",
                         ast.O.spelling, ast.O.position);
-            BinaryOperatorDeclaration bbinding = (BinaryOperatorDeclaration) binding;
-            if (bbinding.ARG1 == StdEnvironment.anyType) {
-                // this operator must be "=" or "\="
-                if (!(e1Type.equals(e2Type) || (e1Type.recursive && e2Type == StdEnvironment.nilType) || (e2Type.recursive && e1Type == StdEnvironment.nilType)))
-                    reporter.reportError("incompatible argument types for \"%\"",
-                            ast.O.spelling, ast.position);
-            } else if (!e1Type.equals(bbinding.ARG1))
-                reporter.reportError("wrong argument type for \"%\"",
-                        ast.O.spelling, ast.E1.position);
-            else if (!e2Type.equals(bbinding.ARG2))
-                reporter.reportError("wrong argument type for \"%\"",
-                        ast.O.spelling, ast.E2.position);
-            ast.type = bbinding.RES;
+
+            if (binding instanceof BinaryOperatorDeclaration) {
+                BinaryOperatorDeclaration bbinding = (BinaryOperatorDeclaration) binding;
+                if (bbinding.ARG1 == StdEnvironment.anyType) {
+                    // this operator must be "=" or "\="
+                    if (!(e1Type.equals(e2Type) || (e1Type.recursive && e2Type == StdEnvironment.nilType) || (e2Type.recursive && e1Type == StdEnvironment.nilType)))
+                        reporter.reportError("incompatible argument types for \"%\"",
+                                ast.O.spelling, ast.position);
+                } else if (!e1Type.equals(bbinding.ARG1))
+                    reporter.reportError("wrong argument type for \"%\"",
+                            ast.O.spelling, ast.E1.position);
+                else if (!e2Type.equals(bbinding.ARG2))
+                    reporter.reportError("wrong argument type for \"%\"",
+                            ast.O.spelling, ast.E2.position);
+                ast.type = bbinding.RES;
+            } else {
+                OpFuncDeclaration bbinding = (OpFuncDeclaration) binding;
+                if (!e1Type.equals(bbinding.ARG1))
+                    reporter.reportError("wrong argument type for \"%\"",
+                            ast.O.spelling, ast.E1.position);
+                else if (!e2Type.equals(bbinding.ARG2))
+                    reporter.reportError("wrong argument type for \"%\"",
+                            ast.O.spelling, ast.E2.position);
+                ast.type = bbinding.T;
+            }
         }
         return ast.type;
     }
@@ -232,15 +245,25 @@ public final class Checker implements Visitor {
         if (binding == null) {
             reportUndeclared(ast.O);
             ast.type = StdEnvironment.errorType;
-        } else if (!(binding instanceof UnaryOperatorDeclaration))
-            reporter.reportError("\"%\" is not a unary operator",
-                    ast.O.spelling, ast.O.position);
-        else {
-            UnaryOperatorDeclaration ubinding = (UnaryOperatorDeclaration) binding;
-            if (!eType.equals(ubinding.ARG))
-                reporter.reportError("wrong argument type for \"%\"",
+        } else {
+            if (!(binding instanceof UnaryOperatorDeclaration || (binding instanceof OpFuncDeclaration && ((OpFuncDeclaration) binding).arity == 1))) {
+                reporter.reportError("\"%\" is not a unary operator",
                         ast.O.spelling, ast.O.position);
-            ast.type = ubinding.RES;
+            }
+
+            if (binding instanceof UnaryOperatorDeclaration) {
+                UnaryOperatorDeclaration ubinding = (UnaryOperatorDeclaration) binding;
+                if (!eType.equals(ubinding.ARG))
+                    reporter.reportError("wrong argument type for \"%\"",
+                            ast.O.spelling, ast.O.position);
+                ast.type = ubinding.RES;
+            } else {
+                OpFuncDeclaration ubinding = (OpFuncDeclaration) binding;
+                if (!eType.equals(ubinding.ARG1))
+                    reporter.reportError("wrong argument type for \"%\"",
+                            ast.O.spelling, ast.O.position);
+                ast.type = ubinding.T;
+            }
         }
         return ast.type;
     }
@@ -279,6 +302,37 @@ public final class Checker implements Visitor {
         if (!ast.T.equals(eType))
             reporter.reportError("body of function \"%\" has wrong type",
                     ast.I.spelling, ast.E.position);
+        return null;
+    }
+
+    public Object visitOpFuncDeclaration(OpFuncDeclaration ast, Object o) {
+        ast.T = (TypeDenoter) ast.T.visit(this, null);
+        idTable.enter(ast.O.spelling, ast); // permits recursion
+        if (ast.duplicated)
+            reporter.reportError("identifier \"%\" already declared",
+                    ast.O.spelling, ast.position);
+        idTable.openScope();
+        ast.FPS.visit(this, null);
+        if (ast.FPS instanceof SingleFormalParameterSequence) {
+            ast.arity = 1;
+            SingleFormalParameterSequence SFPS = ((SingleFormalParameterSequence) ast.FPS);
+            ast.ARG1 = SFPS.FP instanceof ConstFormalParameter ? ((ConstFormalParameter) SFPS.FP).T : ((VarFormalParameter) SFPS.FP).T;
+        }
+        if (ast.FPS instanceof MultipleFormalParameterSequence) {
+            ast.arity = 2;
+            MultipleFormalParameterSequence MFPS = ((MultipleFormalParameterSequence) ast.FPS);
+            ast.ARG1 = (TypeDenoter) (MFPS.FP instanceof ConstFormalParameter ? ((ConstFormalParameter) MFPS.FP).T : ((VarFormalParameter) MFPS.FP).T).visit(this, o);
+            SingleFormalParameterSequence SFPS = ((SingleFormalParameterSequence) MFPS.FPS);
+            ast.ARG2 = (TypeDenoter) (SFPS.FP instanceof ConstFormalParameter ? ((ConstFormalParameter) SFPS.FP).T : ((VarFormalParameter) SFPS.FP).T).visit(this, o);
+        }
+        if (ast.arity != 1 && ast.arity != 2) {
+            reporter.reportError("operator function \"%\" must have 1 or 2 formal parameters", ast.O.spelling, ast.position);
+        }
+        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);
+        idTable.closeScope();
+        if (!ast.T.equals(eType))
+            reporter.reportError("body of function \"%\" has wrong type",
+                    ast.O.spelling, ast.E.position);
         return null;
     }
 

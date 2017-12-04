@@ -294,13 +294,34 @@ public final class Encoder implements Visitor {
             reporter.reportRestriction("can't nest routines more than 7 deep");
         else {
             Frame frame1 = new Frame(frame.level + 1, 0);
-            argsSize = ((Integer) ast.FPS.visit(this, frame1)).intValue();
+            argsSize = (Integer) ast.FPS.visit(this, frame1);
             Frame frame2 = new Frame(frame.level + 1, Machine.linkDataSize);
-            valSize = ((Integer) ast.E.visit(this, frame2)).intValue();
+            valSize = (Integer) ast.E.visit(this, frame2);
         }
         emit(Machine.RETURNop, valSize, 0, argsSize);
         patch(jumpAddr, nextInstrAddr);
-        return new Integer(0);
+        return 0;
+    }
+
+    public Object visitOpFuncDeclaration(OpFuncDeclaration ast, Object o) {
+        Frame frame = (Frame) o;
+        int jumpAddr = nextInstrAddr;
+        int argsSize = 0, valSize = 0;
+
+        emit(Machine.JUMPop, 0, Machine.CBr, 0);
+        ast.entity = new KnownRoutine(Machine.closureSize, frame.level, nextInstrAddr);
+        writeTableDetails(ast);
+        if (frame.level == Machine.maxRoutineLevel)
+            reporter.reportRestriction("can't nest routines more than 7 deep");
+        else {
+            Frame frame1 = new Frame(frame.level + 1, 0);
+            argsSize = (Integer) ast.FPS.visit(this, frame1);
+            Frame frame2 = new Frame(frame.level + 1, Machine.linkDataSize);
+            valSize = (Integer) ast.E.visit(this, frame2);
+        }
+        emit(Machine.RETURNop, valSize, 0, argsSize);
+        patch(jumpAddr, nextInstrAddr);
+        return 0;
     }
 
     public Object visitProcDeclaration(ProcDeclaration ast, Object o) {

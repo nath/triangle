@@ -649,17 +649,31 @@ public class Parser {
 
             case Token.FUNC: {
                 acceptIt();
-                Identifier iAST = parseIdentifier();
-                accept(Token.LPAREN);
-                FormalParameterSequence fpsAST = parseFormalParameterSequence();
-                accept(Token.RPAREN);
-                accept(Token.COLON);
-                TypeDenoter tAST = parseTypeDenoter();
-                accept(Token.IS);
-                Expression eAST = parseExpression();
-                finish(declarationPos);
-                declarationAST = new FuncDeclaration(iAST, fpsAST, tAST, eAST,
-                        declarationPos);
+                if (currentToken.kind == Token.OPERATOR) {
+                    Operator oAST = parseOperator();
+                    accept(Token.LPAREN);
+                    FormalParameterSequence fpsAST = parseFormalParameterSequence();
+                    accept(Token.RPAREN);
+                    accept(Token.COLON);
+                    TypeDenoter tAST = parseTypeDenoter();
+                    accept(Token.IS);
+                    Expression eAST = parseExpression();
+                    finish(declarationPos);
+                    declarationAST = new OpFuncDeclaration(oAST, fpsAST, tAST, eAST,
+                            declarationPos);
+                } else {
+                    Identifier iAST = parseIdentifier();
+                    accept(Token.LPAREN);
+                    FormalParameterSequence fpsAST = parseFormalParameterSequence();
+                    accept(Token.RPAREN);
+                    accept(Token.COLON);
+                    TypeDenoter tAST = parseTypeDenoter();
+                    accept(Token.IS);
+                    Expression eAST = parseExpression();
+                    finish(declarationPos);
+                    declarationAST = new FuncDeclaration(iAST, fpsAST, tAST, eAST,
+                            declarationPos);
+                }
             }
             break;
 

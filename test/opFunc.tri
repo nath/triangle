@@ -1,0 +1,31 @@
+let
+    func ** (x: Integer): Integer ~ 2*x;
+
+    func @ (letter: Char, shift: Integer): Char ~
+        if (ord(letter) >= ord('a')) /\ (ord(letter) <= ord('z')) then
+            chr(((ord(letter)-ord('a') + shift) // 26) + ord('a'))
+        else if (ord(letter) >= ord('A')) /\ (ord(letter) <= ord('Z')) then
+            chr(((ord(letter)-ord('A') + shift) // 26) + ord('A'))
+        else
+            letter
+in
+    begin
+    putint(**3);
+    puteol();
+    putint(**10);
+    puteol();
+
+    put('H'@13);
+    put('e'@13);
+    put('l'@13);
+    put('l'@13);
+    put('o'@13);
+    puteol();
+
+    put('U'@13);
+    put('r'@13);
+    put('y'@13);
+    put('y'@13);
+    put('b'@13);
+    puteol()
+    end
