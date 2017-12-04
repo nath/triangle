@@ -152,8 +152,6 @@ public interface Visitor {
 
     public abstract Object visitSingleFieldTypeDenoter(SingleFieldTypeDenoter ast, Object o);
 
-    //public abstract Object visitRecFieldTypeDenoter(RecFieldTypeDenoter ast, Object o);
-
     // Literals, Identifiers and Operators
     public abstract Object visitCharacterLiteral(CharacterLiteral ast, Object o);
 

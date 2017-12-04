@@ -659,10 +659,6 @@ public final class Checker implements Visitor {
         return ast;
     }
 
-    public Object visitRecFieldTypeDenoter(RecFieldTypeDenoter ast, Object o) {
-        return ast;
-    }
-
     // Literals, Identifiers and Operators
     public Object visitCharacterLiteral(CharacterLiteral CL, Object o) {
         return StdEnvironment.charType;
