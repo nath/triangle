@@ -90,6 +90,8 @@ public interface Visitor {
 
     public abstract Object visitVarInitialization(VarInitialization ast, Object o);
 
+    public abstract Object visitPackageDeclaration(PackageDeclaration ast, Object o);
+
     // Array Aggregates
     public abstract Object visitMultipleArrayAggregate(MultipleArrayAggregate ast, Object o);
 
@@ -180,6 +182,8 @@ public interface Visitor {
     public abstract Object visitFixedStringLiteral(FixedStringLiteral ast, Object o);
 
     public abstract Object visitIdentifier(Identifier ast, Object o);
+
+    public abstract Object visitPackagedIdentifier(PackagedIdentifier ast, Object o);
 
     public abstract Object visitIntegerLiteral(IntegerLiteral ast, Object o);
 

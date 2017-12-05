@@ -1,0 +1,29 @@
+let
+    package Graphics ~
+
+        type Point ~
+            record h: Integer, v: Integer end;
+
+        func cart (x: Integer, y: Integer): Point ~
+            {h ~ x, v ~ y};
+
+        proc movehoriz (dist: Integer, var p: Point) ~
+            p.h := p.h + dist
+
+    end;
+
+    package Foo ~
+        
+        func getNum (): Integer ~
+            secret
+    where const secret ~ 5 end;
+
+    var z: Graphics$Point
+in
+    begin
+    z := Graphics$cart(3, 4);
+    putint(z.h); puteol();
+    Graphics$movehoriz(7, var z);
+    putint(z.h); puteol();
+    putint(Foo$getNum())
+    end

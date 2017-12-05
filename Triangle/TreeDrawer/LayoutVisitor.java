@@ -174,6 +174,10 @@ public class LayoutVisitor implements Visitor {
         return layoutTernary("VarInit.", ast.I, ast.E, ast.T);
     }
 
+    @Override
+    public Object visitPackageDeclaration(PackageDeclaration ast, Object o) {
+        return layoutTernary("PackageDecl.", ast.I, ast.D1, ast.D2);
+    }
 
     // Array Aggregates
     public Object visitMultipleArrayAggregate(MultipleArrayAggregate ast, Object obj) {
@@ -356,6 +360,10 @@ public class LayoutVisitor implements Visitor {
 
     public Object visitIdentifier(Identifier ast, Object obj) {
         return layoutNullary(ast.spelling);
+    }
+
+    public Object visitPackagedIdentifier(PackagedIdentifier ast, Object o) {
+        return layoutBinary("PackagedIdentifier", ast.P, ast.I);
     }
 
     public Object visitIntegerLiteral(IntegerLiteral ast, Object obj) {

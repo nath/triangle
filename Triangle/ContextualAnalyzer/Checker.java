@@ -410,6 +410,21 @@ public final class Checker implements Visitor {
         return null;
     }
 
+    public Object visitPackageDeclaration(PackageDeclaration ast, Object o) {
+        idTable.enter(ast.I.spelling, ast);
+        if (ast.duplicated)
+            reporter.reportError("package \"%\" already declared",
+                    ast.I.spelling, ast.position);
+
+        idTable.openScope();
+        if (ast.D2 != null) {
+            ast.D2.visit(this, null);
+        }
+        ast.D1.visit(this, null);
+        idTable.closeScope();
+        return null;
+    }
+
     // Array Aggregates
 
     // Returns the TypeDenoter for the Array Aggregate. Does not use the
@@ -819,6 +834,43 @@ public final class Checker implements Visitor {
         Declaration binding = idTable.retrieve(I.spelling);
         if (binding != null)
             I.decl = binding;
+        return binding;
+    }
+
+    public Declaration findDeclaration(Declaration D, Identifier iAST) {
+        Declaration decl = null;
+
+        if (D instanceof SequentialDeclaration) {
+            decl = findDeclaration(((SequentialDeclaration) D).D1, iAST);
+            if (decl == null)
+                decl = findDeclaration(((SequentialDeclaration) D).D2, iAST);
+        }
+
+        if ((D instanceof ConstDeclaration && ((ConstDeclaration) D).I.spelling.equals(iAST.spelling)) ||
+                (D instanceof VarDeclaration && ((VarDeclaration) D).I.spelling.equals(iAST.spelling)) ||
+                (D instanceof TypeDeclaration && ((TypeDeclaration) D).I.spelling.equals(iAST.spelling)) ||
+                (D instanceof ProcDeclaration && ((ProcDeclaration) D).I.spelling.equals(iAST.spelling)) ||
+                (D instanceof FuncDeclaration && ((FuncDeclaration) D).I.spelling.equals(iAST.spelling))) {
+            return D;
+        }
+
+        return decl;
+    }
+
+    public Object visitPackagedIdentifier(PackagedIdentifier I, Object o) {
+        Declaration binding = null;
+
+        Declaration P = idTable.retrieve(I.P.spelling);
+        if (!(P instanceof PackageDeclaration)) {
+            reporter.reportError("% is not a package", I.P.spelling, I.position);
+            return binding;
+        }
+        binding = findDeclaration(((PackageDeclaration) P).D1, I.I);
+
+        if (binding != null) {
+            I.decl = binding;
+            I.I.decl = binding;
+        }
         return binding;
     }
 

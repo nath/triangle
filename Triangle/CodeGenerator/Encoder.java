@@ -415,6 +415,15 @@ public final class Encoder implements Visitor {
         return new Integer(extraSize);
     }
 
+    public Object visitPackageDeclaration(PackageDeclaration ast, Object o) {
+        int valSize1, valSize2 = 0;
+
+        if (ast.D2 != null)
+            valSize2 = (Integer) ast.D2.visit(this, o);
+        valSize1 = (Integer) ast.D1.visit(this, o);
+
+        return valSize1 + valSize2;
+    }
 
     // Array Aggregates
     public Object visitMultipleArrayAggregate(MultipleArrayAggregate ast,
@@ -797,6 +806,10 @@ public final class Encoder implements Visitor {
             emit(Machine.CALLop, Machine.SBr, Machine.PBr, displacement);
         }
         return null;
+    }
+
+    public Object visitPackagedIdentifier(PackagedIdentifier ast, Object o) {
+        return ast.I.visit(this, o);
     }
 
     public Object visitIntegerLiteral(IntegerLiteral ast, Object o) {

@@ -248,6 +248,10 @@ public final class Scanner {
                 takeIt();
                 return Token.RCURLY;
 
+            case '$':
+                takeIt();
+                return Token.CASH;
+
             case SourceFile.eot: // [2003.03.11 ruys] was: "sourceFile.eot"
                 return Token.EOT;
 

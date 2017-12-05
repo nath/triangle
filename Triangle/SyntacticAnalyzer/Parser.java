@@ -169,6 +169,11 @@ public class Parser {
             String spelling = currentToken.spelling;
             I = new Identifier(spelling, previousTokenPosition);
             currentToken = lexicalAnalyser.scan();
+            if (currentToken.kind == Token.CASH) {
+                acceptIt();
+                Identifier iAST = parseIdentifier();
+                I = new PackagedIdentifier(I, iAST, currentToken.position);
+            }
         } else {
             I = null;
             syntacticError("identifier expected here", "");
@@ -750,6 +755,22 @@ public class Parser {
                 accept(Token.RPAREN);
                 finish(declarationPos);
                 declarationAST = new EnumTypeDeclaration(iAST, eAST, declarationPos);
+            }
+            break;
+
+            case Token.PACKAGE: {
+                acceptIt();
+                Identifier iAST = parseIdentifier();
+                accept(Token.IS);
+                Declaration d1AST = parseDeclaration();
+                Declaration d2AST = null;
+                if (currentToken.kind == Token.WHERE) {
+                    acceptIt();
+                    d2AST = parseDeclaration();
+                }
+                accept(Token.END);
+                finish(declarationPos);
+                declarationAST = new PackageDeclaration(iAST, d1AST, d2AST, declarationPos);
             }
             break;
 
