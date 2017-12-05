@@ -133,6 +133,44 @@ public final class Checker implements Visitor {
         return ast.type;
     }
 
+    public IntegerExpression foldBinary(BinaryExpression ast) {
+        IntegerExpression value = null;
+        String op = ast.O.spelling;
+        Expression E1 = ast.E1.value != null ? ast.E1.value : ast.E1;
+        Expression E2 = ast.E2.value != null ? ast.E2.value : ast.E2;
+
+        if (E1 instanceof IntegerExpression && E2 instanceof IntegerExpression) {
+            int a = Integer.parseInt(((IntegerExpression) E1).IL.spelling);
+            int b = Integer.parseInt(((IntegerExpression) E2).IL.spelling);
+
+            if (op.equals("+")) {
+                value = new IntegerExpression(new IntegerLiteral((a + b) + "", ast.position), ast.position);
+            }
+
+            if (op.equals("-")) {
+                value = new IntegerExpression(new IntegerLiteral((a - b) + "", ast.position), ast.position);
+            }
+
+            if (op.equals("*")) {
+                value = new IntegerExpression(new IntegerLiteral((a * b) + "", ast.position), ast.position);
+            }
+
+            if (op.equals("/")) {
+                value = new IntegerExpression(new IntegerLiteral((a / b) + "", ast.position), ast.position);
+            }
+
+            if (op.equals("//")) {
+                value = new IntegerExpression(new IntegerLiteral((a % b) + "", ast.position), ast.position);
+            }
+
+            if (value != null) {
+                value.type = StdEnvironment.integerType;
+            }
+        }
+
+        return value;
+    }
+
     public Object visitBinaryExpression(BinaryExpression ast, Object o) {
 
         TypeDenoter e1Type = (TypeDenoter) ast.E1.visit(this, null);
@@ -159,6 +197,7 @@ public final class Checker implements Visitor {
                 else if (!e2Type.equals(bbinding.ARG2))
                     reporter.reportError("wrong argument type for \"%\"",
                             ast.O.spelling, ast.E2.position);
+                ast.value = foldBinary(ast);
                 ast.type = bbinding.RES;
             } else {
                 OpFuncDeclaration bbinding = (OpFuncDeclaration) binding;

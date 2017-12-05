@@ -27,6 +27,9 @@ public class BinaryExpression extends Expression {
     }
 
     public Object visit(Visitor v, Object o) {
+        if (this.value != null) {
+            return v.visitIntegerExpression(this.value, o);
+        }
         return v.visitBinaryExpression(this, o);
     }
 

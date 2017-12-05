@@ -23,5 +23,6 @@ public abstract class Expression extends AST {
         type = null;
     }
 
+    public IntegerExpression value;
     public TypeDenoter type;
 }
