@@ -1,0 +1,36 @@
+let
+    enum type COLORS ~ (RED, GREEN, BLUE);
+
+    var car1: COLORS;
+    var car2: COLORS
+in
+    begin
+    car1 := BLUE;
+    car2 := BLUE;
+
+    if car1 = car2 then
+        put('y')
+    else
+        put('n');
+
+    if RED \= GREEN then
+        put('y')
+    else
+        put('n');
+
+    if (succ RED) = GREEN then
+        put('y')
+    else
+        put('n');
+
+    if (pred BLUE) = GREEN then
+        put('y')
+    else
+        put('n');
+
+    if (pred car1) = GREEN then
+        put('y')
+    else
+        put('n')
+    end
+        

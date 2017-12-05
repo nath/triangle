@@ -82,6 +82,8 @@ public interface Visitor {
 
     public abstract Object visitRecTypeDeclaration(RecTypeDeclaration ast, Object o);
 
+    public abstract Object visitEnumTypeDeclaration(EnumTypeDeclaration ast, Object o);
+
     public abstract Object visitUnaryOperatorDeclaration(UnaryOperatorDeclaration ast, Object o);
 
     public abstract Object visitVarDeclaration(VarDeclaration ast, Object o);
@@ -150,6 +152,8 @@ public interface Visitor {
 
     public abstract Object visitCharTypeDenoter(CharTypeDenoter ast, Object o);
 
+    public abstract Object visitEnumTypeDenoter(EnumTypeDenoter ast, Object o);
+
     public abstract Object visitErrorTypeDenoter(ErrorTypeDenoter ast, Object o);
 
     public abstract Object visitNilTypeDenoter(NilTypeDenoter ast, Object o);
@@ -165,6 +169,10 @@ public interface Visitor {
     public abstract Object visitMultipleFieldTypeDenoter(MultipleFieldTypeDenoter ast, Object o);
 
     public abstract Object visitSingleFieldTypeDenoter(SingleFieldTypeDenoter ast, Object o);
+
+    public abstract Object visitMultipleEnumTypeDenoter(MultipleEnumTypeDenoter ast, Object o);
+
+    public abstract Object visitSingleEnumTypeDenoter(SingleEnumTypeDenoter ast, Object o);
 
     // Literals, Identifiers and Operators
     public abstract Object visitCharacterLiteral(CharacterLiteral ast, Object o);

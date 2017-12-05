@@ -383,6 +383,22 @@ public class Parser {
             }
             break;
 
+            case Token.SUCC: {
+                acceptIt();
+                Expression eAST = parseExpression();
+                finish(expressionPos);
+                expressionAST = new UnaryExpression(new Operator("succ", expressionPos), eAST, expressionPos);
+            }
+            break;
+
+            case Token.PRED: {
+                acceptIt();
+                Expression eAST = parseExpression();
+                finish(expressionPos);
+                expressionAST = new UnaryExpression(new Operator("pred", expressionPos), eAST, expressionPos);
+            }
+            break;
+
             default:
                 expressionAST = parseSecondaryExpression();
                 break;
@@ -724,6 +740,19 @@ public class Parser {
             }
             break;
 
+            case Token.ENUM: {
+                acceptIt();
+                accept(Token.TYPE);
+                Identifier iAST = parseIdentifier();
+                accept(Token.IS);
+                accept(Token.LPAREN);
+                EnumTypeDenoter eAST = parseEnumTypeDenoter();
+                accept(Token.RPAREN);
+                finish(declarationPos);
+                declarationAST = new EnumTypeDeclaration(iAST, eAST, declarationPos);
+            }
+            break;
+
             default:
                 syntacticError("\"%\" cannot start a declaration",
                         currentToken.spelling);
@@ -731,6 +760,25 @@ public class Parser {
 
         }
         return declarationAST;
+    }
+
+    EnumTypeDenoter parseEnumTypeDenoter() throws SyntaxError {
+        EnumTypeDenoter enumAST = null; // in case there's a syntactic error
+
+        SourcePosition enumPos = new SourcePosition();
+
+        start(enumPos);
+        Identifier iAST = parseIdentifier();
+        if (currentToken.kind == Token.COMMA) {
+            acceptIt();
+            EnumTypeDenoter etAST = parseEnumTypeDenoter();
+            finish(enumPos);
+            enumAST = new MultipleEnumTypeDenoter(iAST, etAST, enumPos);
+        } else {
+            finish(enumPos);
+            enumAST = new SingleEnumTypeDenoter(iAST, enumPos);
+        }
+        return enumAST;
     }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -374,7 +374,15 @@ public final class Checker implements Visitor {
             reporter.reportError("identifier \"%\" already declared",
                     ast.I.spelling, ast.position);
         ast.T = (TypeDenoter) ast.T.visit(this, null);
-        //ast.T.recursive = true;
+        return null;
+    }
+
+    public Object visitEnumTypeDeclaration(EnumTypeDeclaration ast, Object o) {
+        idTable.enter(ast.I.spelling, ast);
+        if (ast.duplicated)
+            reporter.reportError("identifier \"%\" already declared",
+                    ast.I.spelling, ast.position);
+        ast.T = (TypeDenoter) ast.T.visit(this, ast);
         return null;
     }
 
@@ -727,6 +735,10 @@ public final class Checker implements Visitor {
         return StdEnvironment.errorType;
     }
 
+    public Object visitEnumTypeDenoter(EnumTypeDenoter ast, Object o) {
+        return StdEnvironment.enumType;
+    }
+
     public Object visitSimpleTypeDenoter(SimpleTypeDenoter ast, Object o) {
         Declaration binding = (Declaration) ast.I.visit(this, null);
         if (binding == null) {
@@ -763,7 +775,8 @@ public final class Checker implements Visitor {
     public Object visitMultipleFieldTypeDenoter(MultipleFieldTypeDenoter ast, Object o) {
         if (!ast.T.recursive) {
             ast.T = (TypeDenoter) ast.T.visit(this, null);
-        }        ast.FT.visit(this, null);
+        }
+        ast.FT.visit(this, null);
         return ast;
     }
 
@@ -771,6 +784,25 @@ public final class Checker implements Visitor {
         if (!ast.T.recursive) {
             ast.T = (TypeDenoter) ast.T.visit(this, null);
         }
+        return ast;
+    }
+
+    public Object visitMultipleEnumTypeDenoter(MultipleEnumTypeDenoter ast, Object o) {
+        EnumTypeDeclaration decl = (EnumTypeDeclaration) o;
+        ast.I.visit(this, null);
+        ast.val = decl.maxNum;
+        decl.maxNum++;
+        idTable.enter(ast.I.spelling, (EnumTypeDeclaration) o);
+        ast.ET.visit(this, o);
+        return ast;
+    }
+
+    public Object visitSingleEnumTypeDenoter(SingleEnumTypeDenoter ast, Object o) {
+        EnumTypeDeclaration decl = (EnumTypeDeclaration) o;
+        ast.I.visit(this, null);
+        ast.val = decl.maxNum;
+        decl.maxNum++;
+        idTable.enter(ast.I.spelling, (EnumTypeDeclaration) o);
         return ast;
     }
 
@@ -863,6 +895,9 @@ public final class Checker implements Visitor {
             ast.variable = true;
         } else if (binding instanceof ResFormalParameter) {
             ast.type = ((ResFormalParameter) binding).T;
+            ast.variable = true;
+        } else if (binding instanceof EnumTypeDeclaration) {
+            ast.type = ((EnumTypeDeclaration) binding).T;
             ast.variable = true;
         } else
             reporter.reportError("\"%\" is not a const, var, in, out, or in out identifier",
@@ -1052,6 +1087,7 @@ public final class Checker implements Visitor {
         StdEnvironment.errorType = new ErrorTypeDenoter(dummyPos);
         StdEnvironment.nilType = new NilTypeDenoter(dummyPos);
         StdEnvironment.fixedStringType = new FixedStringTypeDenoter(new IntegerLiteral("-1", dummyPos), dummyPos);
+        StdEnvironment.enumType = new EnumTypeDenoter(dummyPos);
 
         StdEnvironment.booleanDecl = declareStdType("Boolean", StdEnvironment.booleanType);
         StdEnvironment.falseDecl = declareStdConst("false", StdEnvironment.booleanType);
@@ -1073,6 +1109,9 @@ public final class Checker implements Visitor {
         StdEnvironment.notlessDecl = declareStdBinaryOp(">=", StdEnvironment.integerType, StdEnvironment.integerType, StdEnvironment.booleanType);
 
         StdEnvironment.fixedLexDecl = declareStdBinaryOp("<<", StdEnvironment.fixedStringType, StdEnvironment.fixedStringType, StdEnvironment.integerType);
+
+        StdEnvironment.succDecl = declareStdUnaryOp("succ", StdEnvironment.enumType, StdEnvironment.enumType);
+        StdEnvironment.predDecl = declareStdUnaryOp("pred", StdEnvironment.enumType, StdEnvironment.enumType);
 
         StdEnvironment.charDecl = declareStdType("Char", StdEnvironment.charType);
         StdEnvironment.chrDecl = declareStdFunc("chr", new SingleFormalParameterSequence(

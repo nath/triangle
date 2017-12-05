@@ -34,8 +34,7 @@ public final class Encoder implements Visitor {
     public Object visitAssignCommand(AssignCommand ast, Object o) {
         Frame frame = (Frame) o;
         Integer valSize = (Integer) ast.E.visit(this, frame);
-        encodeStore(ast.V, new Frame(frame, valSize.intValue()),
-                valSize.intValue());
+        encodeStore(ast.V, new Frame(frame, valSize), valSize);
         return null;
     }
 
@@ -252,7 +251,7 @@ public final class Encoder implements Visitor {
         Frame frame = (Frame) o;
         Integer valSize = (Integer) ast.type.visit(this, null);
         ast.E.visit(this, frame);
-        ast.O.visit(this, new Frame(frame.level, valSize.intValue()));
+        ast.O.visit(this, new Frame(frame.level, valSize));
         return valSize;
     }
 
@@ -356,7 +355,7 @@ public final class Encoder implements Visitor {
         }
         emit(Machine.RETURNop, 0, 0, argsSize);
         patch(jumpAddr, nextInstrAddr);
-        return new Integer(0);
+        return 0;
     }
 
     public Object visitSequentialDeclaration(SequentialDeclaration ast, Object o) {
@@ -372,13 +371,17 @@ public final class Encoder implements Visitor {
     public Object visitTypeDeclaration(TypeDeclaration ast, Object o) {
         // just to ensure the type's representation is decided
         ast.T.visit(this, null);
-        return new Integer(0);
+        return 0;
     }
 
     public Object visitRecTypeDeclaration(RecTypeDeclaration ast, Object o) {
         // just to ensure the type's representation is decided
         //ast.T.visit(this, null);
-        return new Integer(0);
+        return 0;
+    }
+
+    public Object visitEnumTypeDeclaration(EnumTypeDeclaration ast, Object o) {
+        return 0;
     }
 
     public Object visitUnaryOperatorDeclaration(UnaryOperatorDeclaration ast,
@@ -665,6 +668,10 @@ public final class Encoder implements Visitor {
         return new Integer(0);
     }
 
+    public Object visitEnumTypeDenoter(EnumTypeDenoter ast, Object o) {
+        return Machine.integerSize;
+    }
+
     public Object visitFixedStringTypeDenoter(FixedStringTypeDenoter ast, Object o) {
         return Integer.parseInt(ast.IL.spelling) * Machine.characterSize;
     }
@@ -744,6 +751,15 @@ public final class Encoder implements Visitor {
         return new Integer(fieldSize);
     }
 
+    //public Object visitEnumTypeDenoter
+
+    public Object visitMultipleEnumTypeDenoter(MultipleEnumTypeDenoter ast, Object o) {
+        return Machine.integerSize;
+    }
+
+    public Object visitSingleEnumTypeDenoter(SingleEnumTypeDenoter ast, Object o) {
+        return Machine.integerSize;
+    }
 
     // Literals, Identifiers and Operators
     public Object visitCharacterLiteral(CharacterLiteral ast, Object o) {
@@ -826,6 +842,7 @@ public final class Encoder implements Visitor {
     public Object visitSimpleVname(SimpleVname ast, Object o) {
         ast.offset = 0;
         ast.indexed = false;
+
         return ast.I.decl.entity;
     }
 
@@ -954,6 +971,9 @@ public final class Encoder implements Visitor {
         elaborateStdPrimRoutine(StdEnvironment.puteolDecl, Machine.puteolDisplacement);
         elaborateStdEqRoutine(StdEnvironment.equalDecl, Machine.eqDisplacement);
         elaborateStdEqRoutine(StdEnvironment.unequalDecl, Machine.neDisplacement);
+
+        elaborateStdPrimRoutine(StdEnvironment.succDecl, Machine.succDisplacement);
+        elaborateStdPrimRoutine(StdEnvironment.predDecl, Machine.predDisplacement);
     }
 
     // Saves the object program in the named file.
@@ -1113,6 +1133,12 @@ public final class Encoder implements Visitor {
             emit(Machine.LOADLop, 0, 0, V.offset);
             emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
             emit(Machine.LOADIop, valSize, 0, 0);
+            return;
+        }
+
+        // load enum literals onto stack
+        if (V.type instanceof EnumTypeDenoter && ((SimpleVname) V).I.decl instanceof EnumTypeDeclaration) {
+            emit(Machine.LOADLop, 0, 0, ((EnumTypeDeclaration) ((SimpleVname) V).I.decl).getVal(((SimpleVname) V).I));
             return;
         }
 

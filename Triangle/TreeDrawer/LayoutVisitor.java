@@ -158,6 +158,10 @@ public class LayoutVisitor implements Visitor {
         return layoutBinary("RecTypeDecl.", ast.I, ast.T);
     }
 
+    public Object visitEnumTypeDeclaration(EnumTypeDeclaration ast, Object obj) {
+        return layoutBinary("EnumTypeDecl.", ast.I, ast.T);
+    }
+
     public Object visitUnaryOperatorDeclaration(UnaryOperatorDeclaration ast, Object obj) {
         return layoutTernary("UnaryOp.Decl.", ast.O, ast.ARG, ast.RES);
     }
@@ -298,6 +302,10 @@ public class LayoutVisitor implements Visitor {
         return layoutNullary("error");
     }
 
+    public Object visitEnumTypeDenoter(EnumTypeDenoter ast, Object obj) {
+        return layoutNullary("enum");
+    }
+
     public Object visitNilTypeDenoter(NilTypeDenoter ast, Object obj) {
         return layoutNullary("nil");
     }
@@ -321,7 +329,6 @@ public class LayoutVisitor implements Visitor {
         return layoutUnary("Rec.TypeD.", ast.FT);
     }
 
-
     public Object visitMultipleFieldTypeDenoter(MultipleFieldTypeDenoter ast, Object obj) {
         return layoutTernary("Mult.F.TypeD.", ast.I, ast.T, ast.FT);
     }
@@ -330,6 +337,13 @@ public class LayoutVisitor implements Visitor {
         return layoutBinary("Sing.F.TypeD.", ast.I, ast.T);
     }
 
+    public Object visitMultipleEnumTypeDenoter(MultipleEnumTypeDenoter ast, Object obj) {
+        return layoutBinary("Mult.Enum.TypeD.", ast.I, ast.ET);
+    }
+
+    public Object visitSingleEnumTypeDenoter(SingleEnumTypeDenoter ast, Object obj) {
+        return layoutUnary("Sing.Enum.TypeD.", ast.I);
+    }
 
     // Literals, Identifiers and Operators
     public Object visitCharacterLiteral(CharacterLiteral ast, Object obj) {

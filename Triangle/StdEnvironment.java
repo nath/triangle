@@ -21,7 +21,7 @@ public final class StdEnvironment {
     // These are small ASTs representing standard types.
 
     public static TypeDenoter
-            booleanType, charType, integerType, anyType, errorType, nilType, fixedStringType;
+            booleanType, charType, integerType, anyType, errorType, nilType, fixedStringType, enumType;
 
     public static TypeDeclaration
             booleanDecl, charDecl, integerDecl;
@@ -32,7 +32,7 @@ public final class StdEnvironment {
             falseDecl, trueDecl, maxintDecl;
 
     public static UnaryOperatorDeclaration
-            notDecl;
+            notDecl, succDecl, predDecl;
 
     public static BinaryOperatorDeclaration
             andDecl, orDecl,
