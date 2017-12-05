@@ -948,6 +948,16 @@ public final class Encoder implements Visitor {
         int elemSize, indexSize;
 
         baseObject = (RuntimeEntity) ast.V.visit(this, frame);
+
+        if (ast.V.type.equals(StdEnvironment.dynamicStringType)) {
+            encodeFetch(ast.V, frame, Machine.addressSize);
+            ast.E.visit(this, o);
+            emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.succDisplacement);
+            emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
+            emit(Machine.LOADIop, Machine.characterSize, 0, 0);
+            return baseObject;
+        }
+
         int arrLen = baseObject instanceof KnownAddress ? ((KnownAddress) baseObject).arrLen : ((UnknownValue) baseObject).size;
         ast.offset = ast.V.offset;
         ast.indexed = ast.V.indexed;
@@ -1231,6 +1241,9 @@ public final class Encoder implements Visitor {
             emit(Machine.LOADIop, valSize, 0, 0);
             return;
         }
+
+        if (V instanceof SubscriptVname && ((SubscriptVname) V).V.type.equals(StdEnvironment.dynamicStringType))
+            return;
 
         // load enum literals onto stack
         if (V.type instanceof EnumTypeDenoter && ((SimpleVname) V).I.decl instanceof EnumTypeDeclaration) {

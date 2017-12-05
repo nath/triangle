@@ -1029,7 +1029,7 @@ public final class Checker implements Visitor {
         ast.variable = ast.V.variable;
         TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);
         if (vType != StdEnvironment.errorType) {
-            if (!(vType instanceof ArrayTypeDenoter || vType instanceof FixedStringTypeDenoter))
+            if (!(vType instanceof ArrayTypeDenoter || vType instanceof FixedStringTypeDenoter || vType instanceof DynamicStringTypeDenoter))
                 reporter.reportError("array or string expected here", "", ast.V.position);
             else {
                 if (!eType.equals(StdEnvironment.integerType))
