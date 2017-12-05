@@ -28,6 +28,7 @@ public class WhileCommand extends Command {
         return v.visitWhileCommand(this, o);
     }
 
+    public LetCommand moved;
     public Expression E;
     public Command C;
 }

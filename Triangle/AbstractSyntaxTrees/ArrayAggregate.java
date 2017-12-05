@@ -23,5 +23,6 @@ public abstract class ArrayAggregate extends AST {
         elemCount = 0;
     }
 
+    public boolean invariant = true;
     public int elemCount;
 }

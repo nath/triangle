@@ -1,0 +1,12 @@
+let
+    var i: Integer;
+    var x: Integer
+in
+    begin
+    x := 3;
+    while i < 5 do
+        begin
+        putint(x + 8); puteol();
+        i := i+1
+        end
+    end

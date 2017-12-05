@@ -26,6 +26,7 @@ import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public final class Encoder implements Visitor {
 
@@ -121,6 +122,11 @@ public final class Encoder implements Visitor {
     }
 
     public Object visitWhileCommand(WhileCommand ast, Object o) {
+        if (ast.moved != null && !seenWhiles.contains(ast)) {
+            seenWhiles.add(ast);
+            return ast.moved.visit(this, o);
+        }
+
         Frame frame = (Frame) o;
         int jumpAddr, loopAddr;
 
@@ -148,11 +154,22 @@ public final class Encoder implements Visitor {
 
     // Expressions
     public Object visitArrayExpression(ArrayExpression ast, Object o) {
+        if (ast.movedId != null) {
+            if (seenExpressions.contains(ast))
+                return ast.movedId.visit(this, o);
+            seenExpressions.add(ast);
+        }
         ast.type.visit(this, null);
         return ast.AA.visit(this, o);
     }
 
     public Object visitBinaryExpression(BinaryExpression ast, Object o) {
+        if (ast.movedId != null) {
+            if (seenExpressions.contains(ast))
+                return ast.movedId.visit(this, o);
+            seenExpressions.add(ast);
+        }
+
         Frame frame = (Frame) o;
         Integer valSize = (Integer) ast.type.visit(this, null);
         int valSize1 = ((Integer) ast.E1.visit(this, frame)).intValue();
@@ -192,6 +209,12 @@ public final class Encoder implements Visitor {
     }
 
     public Object visitIfExpression(IfExpression ast, Object o) {
+        if (ast.movedId != null) {
+            if (seenExpressions.contains(ast))
+                return ast.movedId.visit(this, o);
+            seenExpressions.add(ast);
+        }
+
         Frame frame = (Frame) o;
         Integer valSize;
         int jumpifAddr, jumpAddr;
@@ -217,6 +240,12 @@ public final class Encoder implements Visitor {
     }
 
     public Object visitLetExpression(LetExpression ast, Object o) {
+        if (ast.movedId != null) {
+            if (seenExpressions.contains(ast))
+                return ast.movedId.visit(this, o);
+            seenExpressions.add(ast);
+        }
+
         Frame frame = (Frame) o;
         ast.type.visit(this, null);
         int extraSize = ((Integer) ast.D.visit(this, frame)).intValue();
@@ -234,6 +263,12 @@ public final class Encoder implements Visitor {
     }
 
     public Object visitRecordExpression(RecordExpression ast, Object o) {
+        if (ast.movedId != null) {
+            if (seenExpressions.contains(ast))
+                return ast.movedId.visit(this, o);
+            seenExpressions.add(ast);
+        }
+
         ast.type.visit(this, null);
         Integer valSize = (Integer) ast.RA.visit(this, o);
         if (ast.type.recursive) {
@@ -248,6 +283,12 @@ public final class Encoder implements Visitor {
     }
 
     public Object visitUnaryExpression(UnaryExpression ast, Object o) {
+        if (ast.movedId != null) {
+            if (seenExpressions.contains(ast))
+                return ast.movedId.visit(this, o);
+            seenExpressions.add(ast);
+        }
+
         Frame frame = (Frame) o;
         Integer valSize = (Integer) ast.type.visit(this, null);
         ast.E.visit(this, frame);
@@ -258,7 +299,7 @@ public final class Encoder implements Visitor {
     public Object visitVnameExpression(VnameExpression ast, Object o) {
         Frame frame = (Frame) o;
         Integer valSize = (Integer) ast.type.visit(this, null);
-        encodeFetch(ast.V, frame, valSize.intValue());
+        encodeFetch(ast.V, frame, valSize);
         return valSize;
     }
 
@@ -1219,4 +1260,7 @@ public final class Encoder implements Visitor {
             }
         }
     }
+
+    private ArrayList<WhileCommand> seenWhiles = new ArrayList<WhileCommand>();
+    private ArrayList<Expression> seenExpressions = new ArrayList<Expression>();
 }

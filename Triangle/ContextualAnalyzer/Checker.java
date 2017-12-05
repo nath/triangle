@@ -21,6 +21,7 @@ import Triangle.SyntacticAnalyzer.SourcePosition;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public final class Checker implements Visitor {
 
@@ -109,6 +110,20 @@ public final class Checker implements Visitor {
         if (!eType.equals(StdEnvironment.booleanType))
             reporter.reportError("Boolean expression expected here", "", ast.E.position);
         ast.C.visit(this, null);
+        ast.C.visit(new VarianceChecker(), new ArrayList<String>());
+        HashMap<String, Expression> mapping = new HashMap<String, Expression>();
+        ast.C.visit(new IdReplacer(), mapping);
+        if (mapping.size() > 0) {
+            ArrayList<String> ids = new ArrayList<String>(mapping.keySet());
+            Declaration dAST = new ConstDeclaration(new Identifier(ids.get(0), dummyPos), mapping.get(ids.get(0)), dummyPos);
+            ((SimpleVname) ((VnameExpression) mapping.get(ids.get(0)).movedId).V).I.decl = dAST;
+            for (int i=1; i < ids.size(); i++) {
+                Declaration decl = new ConstDeclaration(new Identifier(ids.get(i), dummyPos), mapping.get(ids.get(i)), dummyPos);
+                ((SimpleVname) ((VnameExpression) mapping.get(ids.get(i)).movedId).V).I.decl = decl;
+                dAST = new SequentialDeclaration(decl, dAST, dummyPos);
+            }
+            ast.moved = new LetCommand(dAST, ast, ast.position);
+        }
         return null;
     }
 

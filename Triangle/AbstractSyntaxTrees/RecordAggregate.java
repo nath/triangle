@@ -23,5 +23,6 @@ public abstract class RecordAggregate extends AST {
         type = null;
     }
 
+    public boolean invariant = true;
     public FieldTypeDenoter type;
 }

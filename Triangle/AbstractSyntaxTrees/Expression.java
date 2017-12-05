@@ -23,6 +23,8 @@ public abstract class Expression extends AST {
         type = null;
     }
 
+    public boolean invariant = true;
+    public Expression movedId;
     public IntegerExpression value;
     public TypeDenoter type;
 }

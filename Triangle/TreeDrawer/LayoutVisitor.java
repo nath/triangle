@@ -17,6 +17,7 @@ package Triangle.TreeDrawer;
 import Triangle.AbstractSyntaxTrees.*;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class LayoutVisitor implements Visitor {
 
@@ -63,6 +64,10 @@ public class LayoutVisitor implements Visitor {
     }
 
     public Object visitWhileCommand(WhileCommand ast, Object obj) {
+        if (ast.moved != null && !seenWhiles.contains(ast)) {
+            seenWhiles.add(ast);
+            return ast.moved.visit(this, null);
+        }
         return layoutBinary("WhileCom.", ast.E, ast.C);
     }
 
@@ -73,10 +78,20 @@ public class LayoutVisitor implements Visitor {
 
     // Expressions
     public Object visitArrayExpression(ArrayExpression ast, Object obj) {
+        if (ast.movedId != null) {
+            if (seenExpressions.contains(ast))
+                return ast.movedId.visit(this, obj);
+            seenExpressions.add(ast);
+        }
         return layoutUnary("ArrayExpr.", ast.AA);
     }
 
     public Object visitBinaryExpression(BinaryExpression ast, Object obj) {
+        if (ast.movedId != null) {
+            if (seenExpressions.contains(ast))
+                return ast.movedId.visit(this, obj);
+            seenExpressions.add(ast);
+        }
         return layoutTernary("Bin.Expr.", ast.E1, ast.O, ast.E2);
     }
 
@@ -97,6 +112,11 @@ public class LayoutVisitor implements Visitor {
     }
 
     public Object visitIfExpression(IfExpression ast, Object obj) {
+        if (ast.movedId != null) {
+            if (seenExpressions.contains(ast))
+                return ast.movedId.visit(this, obj);
+            seenExpressions.add(ast);
+        }
         return layoutTernary("IfExpr.", ast.E1, ast.E2, ast.E3);
     }
 
@@ -105,6 +125,11 @@ public class LayoutVisitor implements Visitor {
     }
 
     public Object visitLetExpression(LetExpression ast, Object obj) {
+        if (ast.movedId != null) {
+            if (seenExpressions.contains(ast))
+                return ast.movedId.visit(this, obj);
+            seenExpressions.add(ast);
+        }
         return layoutBinary("LetExpr.", ast.D, ast.E);
     }
 
@@ -113,10 +138,20 @@ public class LayoutVisitor implements Visitor {
     }
 
     public Object visitRecordExpression(RecordExpression ast, Object obj) {
+        if (ast.movedId != null) {
+            if (seenExpressions.contains(ast))
+                return ast.movedId.visit(this, obj);
+            seenExpressions.add(ast);
+        }
         return layoutUnary("Rec.Expr.", ast.RA);
     }
 
     public Object visitUnaryExpression(UnaryExpression ast, Object obj) {
+        if (ast.movedId != null) {
+            if (seenExpressions.contains(ast))
+                return ast.movedId.visit(this, obj);
+            seenExpressions.add(ast);
+        }
         return layoutBinary("UnaryExpr.", ast.O, ast.E);
     }
 
@@ -573,4 +608,6 @@ public class LayoutVisitor implements Visitor {
         return r;
     }
 
+    private ArrayList<WhileCommand> seenWhiles = new ArrayList<WhileCommand>();
+    private ArrayList<Expression> seenExpressions = new ArrayList<Expression>();
 }
