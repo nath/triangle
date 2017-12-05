@@ -189,7 +189,7 @@ public final class Encoder implements Visitor {
     }
 
     public Object visitEmptyExpression(EmptyExpression ast, Object o) {
-        return new Integer(0);
+        return 0;
     }
 
     public Object visitIfExpression(IfExpression ast, Object o) {
@@ -306,6 +306,8 @@ public final class Encoder implements Visitor {
             argsSize = (Integer) ast.FPS.visit(this, frame1);
             Frame frame2 = new Frame(frame.level + 1, Machine.linkDataSize);
             valSize = (Integer) ast.E.visit(this, frame2);
+
+            ast.FPS.copyResults(this, frame2);
         }
         emit(Machine.RETURNop, valSize, 0, argsSize);
         patch(jumpAddr, nextInstrAddr);
@@ -349,6 +351,8 @@ public final class Encoder implements Visitor {
             argsSize = ((Integer) ast.FPS.visit(this, frame1)).intValue();
             Frame frame2 = new Frame(frame.level + 1, Machine.linkDataSize);
             ast.C.visit(this, frame2);
+
+            ast.FPS.copyResults(this, frame2);
         }
         emit(Machine.RETURNop, 0, 0, argsSize);
         patch(jumpAddr, nextInstrAddr);
@@ -503,6 +507,20 @@ public final class Encoder implements Visitor {
         return new Integer(Machine.addressSize);
     }
 
+    public Object visitValResFormalParameter(ValResFormalParameter ast, Object o) {
+        Frame frame = (Frame) o;
+        int valSize = (Integer) ast.T.visit(this, null);
+        ast.entity = new UnknownValue(valSize, frame.level, -frame.size - valSize - Machine.addressSize);
+        writeTableDetails(ast);
+        return valSize + Machine.addressSize;
+    }
+    public Object visitResFormalParameter(ResFormalParameter ast, Object o) {
+        Frame frame = (Frame) o;
+        int valSize = (Integer) ast.T.visit(this, null);
+        ast.entity = new UnknownValue(valSize, frame.level, -frame.size - valSize - Machine.addressSize);
+        writeTableDetails(ast);
+        return valSize + Machine.addressSize;
+    }
 
     public Object visitEmptyFormalParameterSequence(
             EmptyFormalParameterSequence ast, Object o) {
@@ -574,6 +592,21 @@ public final class Encoder implements Visitor {
         return new Integer(Machine.addressSize);
     }
 
+    public Object visitValResActualParameter(ValResActualParameter ast, Object o) {
+        Frame frame = (Frame) o;
+        int valSize = (Integer) ast.V.type.visit(this, null);
+        encodeFetch(ast.V, frame, valSize);
+        encodeFetchAddress(ast.V, (Frame) o);
+        return new Integer(Machine.addressSize + valSize);
+    }
+
+    public Object visitResActualParameter(ResActualParameter ast, Object o) {
+        Frame frame = (Frame) o;
+        int valSize = (Integer) ast.V.type.visit(this, null);
+        emit(Machine.PUSHop, 0, 0 , valSize);
+        encodeFetchAddress(ast.V, (Frame) o);
+        return new Integer(Machine.addressSize + valSize);
+    }
 
     public Object visitEmptyActualParameterSequence(
             EmptyActualParameterSequence ast, Object o) {
@@ -960,7 +993,7 @@ public final class Encoder implements Visitor {
     private int nextInstrAddr;
 
     // Appends an instruction, with the given fields, to the object code.
-    private void emit(int op, int n, int r, int d) {
+    public void emit(int op, int n, int r, int d) {
         Instruction nextInstr = new Instruction();
         if (n > 255) {
             reporter.reportRestriction("length of operand can't exceed 255 words");
@@ -995,7 +1028,7 @@ public final class Encoder implements Visitor {
 
     // Returns the register number appropriate for object code at currentLevel
     // to address a data object at objectLevel.
-    private int displayRegister(int currentLevel, int objectLevel) {
+    public int displayRegister(int currentLevel, int objectLevel) {
         if (objectLevel == 0)
             return Machine.SBr;
         else if (currentLevel - objectLevel <= 6)
@@ -1004,6 +1037,19 @@ public final class Encoder implements Visitor {
             reporter.reportRestriction("can't access data more than 6 levels out");
             return Machine.L6r;  // to allow code generation to continue
         }
+    }
+
+    private Boolean isResultParam(Vname V) {
+        if (V instanceof SimpleVname) {
+            SimpleVname SV = (SimpleVname) V;
+            return SV.I.decl instanceof ResFormalParameter || SV.I.decl instanceof ValResFormalParameter;
+        }
+
+        if (V instanceof DotVname) {
+            return isResultParam(V);
+        }
+
+        return false;
     }
 
     // Generates code to store the value of a named constant or variable
@@ -1045,6 +1091,9 @@ public final class Encoder implements Visitor {
                 emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
             }
             emit(Machine.STOREIop, valSize, 0, 0);
+        } else if (isResultParam(V)) {
+            ObjectAddress address = ((UnknownValue) baseObject).address;
+            emit(Machine.STOREop, Machine.addressSize, displayRegister(frame.level, address.level), address.displacement);
         }
     }
 

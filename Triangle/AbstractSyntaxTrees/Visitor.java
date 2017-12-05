@@ -112,6 +112,10 @@ public interface Visitor {
 
     public abstract Object visitVarFormalParameter(VarFormalParameter ast, Object o);
 
+    public abstract Object visitValResFormalParameter(ValResFormalParameter ast, Object o);
+
+    public abstract Object visitResFormalParameter(ResFormalParameter ast, Object o);
+
     public abstract Object visitEmptyFormalParameterSequence(EmptyFormalParameterSequence ast, Object o);
 
     public abstract Object visitMultipleFormalParameterSequence(MultipleFormalParameterSequence ast, Object o);
@@ -126,6 +130,10 @@ public interface Visitor {
     public abstract Object visitProcActualParameter(ProcActualParameter ast, Object o);
 
     public abstract Object visitVarActualParameter(VarActualParameter ast, Object o);
+
+    public abstract Object visitValResActualParameter(ValResActualParameter ast, Object o);
+
+    public abstract Object visitResActualParameter(ResActualParameter ast, Object o);
 
     public abstract Object visitEmptyActualParameterSequence(EmptyActualParameterSequence ast, Object o);
 

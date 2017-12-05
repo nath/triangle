@@ -1,0 +1,35 @@
+let
+    proc foo(in a: Integer, out b: Integer, in out c: Integer) ~
+        begin
+        put('e'); put(' '); put('f'); put('o'); put('o'); puteol();
+        put('a'); put('='); putint(a); puteol();
+        put('b'); put('='); putint(b); puteol();
+        put('c'); put('='); putint(c); puteol();
+
+        b := 9;
+        c := 9;
+
+        put('b'); put('='); putint(b); puteol();
+        put('c'); put('='); putint(c); puteol();
+        put('l'); put(' '); put('f'); put('o'); put('o'); puteol()
+        end;
+
+    var x: Integer;
+    var y: Integer;
+    var z: Integer
+in
+    begin
+    x := 1;
+    y := 1;
+    z := 1;
+
+    put('x'); put('='); putint(x); puteol();
+    put('y'); put('='); putint(y); puteol();
+    put('z'); put('='); putint(z); puteol();
+
+    foo(in x, out y, in out z);
+
+    put('x'); put('='); putint(x); puteol();
+    put('y'); put('='); putint(y); puteol();
+    put('z'); put('='); putint(z); puteol()
+    end

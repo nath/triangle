@@ -510,6 +510,24 @@ public final class Checker implements Visitor {
         return null;
     }
 
+    public Object visitValResFormalParameter(ValResFormalParameter ast, Object o) {
+        ast.T = (TypeDenoter) ast.T.visit(this, null);
+        idTable.enter(ast.I.spelling, ast);
+        if (ast.duplicated)
+            reporter.reportError("duplicated formal parameter \"%\"",
+                    ast.I.spelling, ast.position);
+        return null;
+    }
+
+    public Object visitResFormalParameter(ResFormalParameter ast, Object o) {
+        ast.T = (TypeDenoter) ast.T.visit(this, null);
+        idTable.enter(ast.I.spelling, ast);
+        if (ast.duplicated)
+            reporter.reportError("duplicated formal parameter \"%\"",
+                    ast.I.spelling, ast.position);
+        return null;
+    }
+
     public Object visitEmptyFormalParameterSequence(EmptyFormalParameterSequence ast, Object o) {
         return null;
     }
@@ -613,6 +631,38 @@ public final class Checker implements Visitor {
                     ast.V.position);
         else if (!vType.equals(((VarFormalParameter) fp).T))
             reporter.reportError("wrong type for var actual parameter", "",
+                    ast.V.position);
+        return null;
+    }
+
+    public Object visitValResActualParameter(ValResActualParameter ast, Object o) {
+        FormalParameter fp = (FormalParameter) o;
+
+        TypeDenoter vType = (TypeDenoter) ast.V.visit(this, null);
+        if (!ast.V.variable)
+            reporter.reportError("actual parameter is not a variable", "",
+                    ast.V.position);
+        else if (!(fp instanceof ValResFormalParameter))
+            reporter.reportError("value result actual parameter not expected here", "",
+                    ast.V.position);
+        else if (!vType.equals(((ValResFormalParameter) fp).T))
+            reporter.reportError("wrong type for value result actual parameter", "",
+                    ast.V.position);
+        return null;
+    }
+
+    public Object visitResActualParameter(ResActualParameter ast, Object o) {
+        FormalParameter fp = (FormalParameter) o;
+
+        TypeDenoter vType = (TypeDenoter) ast.V.visit(this, null);
+        if (!ast.V.variable)
+            reporter.reportError("actual parameter is not a variable", "",
+                    ast.V.position);
+        else if (!(fp instanceof ResFormalParameter))
+            reporter.reportError("result actual parameter not expected here", "",
+                    ast.V.position);
+        else if (!vType.equals(((ResFormalParameter) fp).T))
+            reporter.reportError("wrong type for result actual parameter", "",
                     ast.V.position);
         return null;
     }
@@ -808,8 +858,14 @@ public final class Checker implements Visitor {
         } else if (binding instanceof VarFormalParameter) {
             ast.type = ((VarFormalParameter) binding).T;
             ast.variable = true;
+        } else if (binding instanceof ValResFormalParameter) {
+            ast.type = ((ValResFormalParameter) binding).T;
+            ast.variable = true;
+        } else if (binding instanceof ResFormalParameter) {
+            ast.type = ((ResFormalParameter) binding).T;
+            ast.variable = true;
         } else
-            reporter.reportError("\"%\" is not a const or var identifier",
+            reporter.reportError("\"%\" is not a const, var, in, out, or in out identifier",
                     ast.I.spelling, ast.I.position);
         return ast.type;
     }

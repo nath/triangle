@@ -1,5 +1,5 @@
 /*
- * @(#)EmptyFormalParameterSequence.java        2.0 1999/08/11
+ * @(#)VarActualParameter.java                        2.0 1999/08/11
  *
  * Copyright (C) 1999 D.A. Watt and D.F. Brown
  * Dept. of Computing Science, University of Glasgow, Glasgow G12 8QQ Scotland
@@ -14,23 +14,18 @@
 
 package Triangle.AbstractSyntaxTrees;
 
-import Triangle.CodeGenerator.Encoder;
-import Triangle.CodeGenerator.Frame;
 import Triangle.SyntacticAnalyzer.SourcePosition;
 
-public class EmptyFormalParameterSequence extends FormalParameterSequence {
+public class ValResActualParameter extends ActualParameter {
 
-    public EmptyFormalParameterSequence(SourcePosition thePosition) {
+    public ValResActualParameter(Vname vAST, SourcePosition thePosition) {
         super(thePosition);
+        V = vAST;
     }
 
     public Object visit(Visitor v, Object o) {
-        return v.visitEmptyFormalParameterSequence(this, o);
+        return v.visitValResActualParameter(this, o);
     }
 
-    public boolean equals(FormalParameterSequence fpsAST) {
-        return (fpsAST instanceof EmptyFormalParameterSequence);
-    }
-
-    public void copyResults(Encoder e, Frame frame) {}
+    public Vname V;
 }

@@ -14,6 +14,8 @@
 
 package Triangle.AbstractSyntaxTrees;
 
+import Triangle.CodeGenerator.Encoder;
+import Triangle.CodeGenerator.Frame;
 import Triangle.SyntacticAnalyzer.SourcePosition;
 
 public abstract class FormalParameterSequence extends AST {
@@ -23,4 +25,6 @@ public abstract class FormalParameterSequence extends AST {
     }
 
     public abstract boolean equals(FormalParameterSequence fpsAST);
+
+    public abstract void copyResults(Encoder e, Frame frame);
 }

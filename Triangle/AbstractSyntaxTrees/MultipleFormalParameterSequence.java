@@ -14,6 +14,8 @@
 
 package Triangle.AbstractSyntaxTrees;
 
+import Triangle.CodeGenerator.Encoder;
+import Triangle.CodeGenerator.Frame;
 import Triangle.SyntacticAnalyzer.SourcePosition;
 
 public class MultipleFormalParameterSequence extends FormalParameterSequence {
@@ -31,6 +33,16 @@ public class MultipleFormalParameterSequence extends FormalParameterSequence {
 
     public boolean equals(FormalParameterSequence fpsAST) {
         return true;
+    }
+
+    public void copyResults(Encoder e, Frame frame) {
+        if (FP instanceof ResFormalParameter) {
+            ((ResFormalParameter) FP).storeResult(e, frame);
+        }
+        if (FP instanceof ValResFormalParameter) {
+            ((ValResFormalParameter) FP).storeResult(e, frame);
+        }
+        this.FPS.copyResults(e, frame);
     }
 
     public FormalParameter FP;

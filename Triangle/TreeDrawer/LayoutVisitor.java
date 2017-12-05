@@ -217,6 +217,13 @@ public class LayoutVisitor implements Visitor {
         return layoutBinary("VarF.P.", ast.I, ast.T);
     }
 
+    public Object visitValResFormalParameter(ValResFormalParameter ast, Object obj) {
+        return layoutBinary("ValResF.P.", ast.I, ast.T);
+    }
+
+    public Object visitResFormalParameter(ResFormalParameter ast, Object obj) {
+        return layoutBinary("ResF.P.", ast.I, ast.T);
+    }
 
     public Object visitEmptyFormalParameterSequence(EmptyFormalParameterSequence ast, Object obj) {
         return layoutNullary("EmptyF.P.S.");
@@ -246,6 +253,14 @@ public class LayoutVisitor implements Visitor {
 
     public Object visitVarActualParameter(VarActualParameter ast, Object obj) {
         return layoutUnary("VarA.P.", ast.V);
+    }
+
+    public Object visitValResActualParameter(ValResActualParameter ast, Object obj) {
+        return layoutUnary("ValResA.P.", ast.V);
+    }
+
+    public Object visitResActualParameter(ResActualParameter ast, Object obj) {
+        return layoutUnary("ResA.P.", ast.V);
     }
 
 

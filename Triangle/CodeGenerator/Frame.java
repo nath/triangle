@@ -41,6 +41,6 @@ public class Frame {
         this.size = frame.size + sizeIncrement.intValue();
     }
 
-    protected int level;
-    protected int size;
+    public int level;
+    public int size;
 }

@@ -802,6 +802,35 @@ public class Parser {
             }
             break;
 
+            case Token.IN: {
+                acceptIt();
+                if (currentToken.kind == Token.OUT) {
+                    acceptIt();
+                    Identifier iAST = parseIdentifier();
+                    accept(Token.COLON);
+                    TypeDenoter tAST = parseTypeDenoter();
+                    finish(formalPos);
+                    formalAST = new ValResFormalParameter(iAST, tAST, formalPos);
+                } else {
+                    Identifier iAST = parseIdentifier();
+                    accept(Token.COLON);
+                    TypeDenoter tAST = parseTypeDenoter();
+                    finish(formalPos);
+                    formalAST = new ConstFormalParameter(iAST, tAST, formalPos);
+                }
+            }
+            break;
+
+            case Token.OUT: {
+                acceptIt();
+                Identifier iAST = parseIdentifier();
+                accept(Token.COLON);
+                TypeDenoter tAST = parseTypeDenoter();
+                finish(formalPos);
+                formalAST = new ResFormalParameter(iAST, tAST, formalPos);
+            }
+            break;
+
             case Token.PROC: {
                 acceptIt();
                 Identifier iAST = parseIdentifier();
@@ -901,6 +930,29 @@ public class Parser {
                 Vname vAST = parseVname();
                 finish(actualPos);
                 actualAST = new VarActualParameter(vAST, actualPos);
+            }
+            break;
+
+            case Token.IN: {
+                acceptIt();
+                if (currentToken.kind == Token.OUT) {
+                    acceptIt();
+                    Vname vAST = parseVname();
+                    finish(actualPos);
+                    actualAST = new ValResActualParameter(vAST, actualPos);
+                } else {
+                    Expression eAST = parseExpression();
+                    finish(actualPos);
+                    actualAST = new ConstActualParameter(eAST, actualPos);
+                }
+            }
+            break;
+
+            case Token.OUT: {
+                acceptIt();
+                Vname vAST = parseVname();
+                finish(actualPos);
+                actualAST = new ResActualParameter(vAST, actualPos);
             }
             break;
 
