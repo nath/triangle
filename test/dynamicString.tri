@@ -1,0 +1,25 @@
+let
+    var s: string
+in
+    begin
+    s := "app";
+    if ("hi" ++ "yo") = "hiyo" then 
+        put('y')
+    else
+        put('n');
+
+    if (s <<< "apple") = 0 then
+        put('y')
+    else
+        put('n');
+    
+    if ((s ++ "le") <<< "apple") = 1 then
+        put('y')
+    else
+        put('n');
+
+    if ("apple" <<< s) = 2 then
+        put('y')
+    else
+        put('n')
+    end

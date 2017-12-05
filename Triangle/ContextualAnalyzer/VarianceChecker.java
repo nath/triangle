@@ -107,6 +107,12 @@ public class VarianceChecker implements Visitor {
         return null;
     }
 
+    public Object visitDynamicStringExpression(DynamicStringExpression ast, Object o) {
+        ast.invariant = true;
+        ast.DSL.visit(this, o);
+        return null;
+    }
+
     public Object visitIfExpression(IfExpression ast, Object o) {
         ast.E1.visit(this, o);
         ast.E2.visit(this, o);
@@ -358,6 +364,10 @@ public class VarianceChecker implements Visitor {
         return null;
     }
 
+    public Object visitDynamicStringTypeDenoter(DynamicStringTypeDenoter ast, Object o) {
+        return null;
+    }
+
     public Object visitIntTypeDenoter(IntTypeDenoter ast, Object o) {
         return null;
     }
@@ -387,6 +397,10 @@ public class VarianceChecker implements Visitor {
     }
 
     public Object visitFixedStringLiteral(FixedStringLiteral ast, Object o) {
+        return null;
+    }
+
+    public Object visitDynamicStringLiteral(DynamicStringLiteral ast, Object o) {
         return null;
     }
 

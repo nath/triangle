@@ -19,6 +19,7 @@ import TAM.Machine;
 import Triangle.AbstractSyntaxTrees.*;
 import Triangle.ErrorReporter;
 import Triangle.StdEnvironment;
+import Triangle.SyntacticAnalyzer.SourcePosition;
 
 import javax.crypto.Mac;
 import javax.lang.model.type.ArrayType;
@@ -176,8 +177,26 @@ public final class Encoder implements Visitor {
         Frame frame1 = new Frame(frame, valSize1);
         int valSize2 = ((Integer) ast.E2.visit(this, frame1)).intValue();
         Frame frame2 = new Frame(frame.level, valSize1 + valSize2);
-        if (ast.O.spelling.equals("<<"))
+        if (ast.E1.type.equals(StdEnvironment.dynamicStringType)) {
+            if (ast.O.spelling.equals("=")) {
+                emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.dynamicEqDisplacement);
+                return valSize;
+            }
+            if (ast.O.spelling.equals("\\=")) {
+                emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.dynamicNeDisplacement);
+                return valSize;
+            }
+            if (ast.O.spelling.equals("++")) {
+                emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.dynamicConcatDisplacement);
+                return valSize;
+            }
+            if (ast.O.spelling.equals("<<<")) {
+                emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.dynamicLexDisplacement);
+                return valSize;
+            }
+        } else if (ast.O.spelling.equals("<<")) {
             emit(Machine.LOADLop, 0, 0, (Integer) ast.E1.type.visit(this, null));
+        }
         ast.O.visit(this, frame2);
         return valSize;
     }
@@ -202,6 +221,21 @@ public final class Encoder implements Visitor {
         Integer valSize = (Integer) ast.type.visit(this, null);
         ast.FSL.visit(this, null);
         return valSize;
+    }
+
+    public Object visitDynamicStringExpression(DynamicStringExpression ast, Object o) {
+        ast.type.visit(this, null);
+        int valSize = ast.DSL.spelling.length();
+        emit(Machine.LOADLop, 0, 0, valSize);
+        for (int i=0; i < valSize; i++) {
+            emit(Machine.LOADLop, 0, 0, ast.DSL.spelling.charAt(i));
+        }
+        emit(Machine.LOADLop, 0, 0, valSize+1);
+        emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.newDisplacement);
+        emit(Machine.LOADop, valSize + 2, Machine.STr, -2 - valSize);
+        emit(Machine.STOREIop, valSize+1, 0, 0);
+        emit(Machine.POPop, 1, 0, valSize+1);
+        return 1;
     }
 
     public Object visitEmptyExpression(EmptyExpression ast, Object o) {
@@ -726,6 +760,10 @@ public final class Encoder implements Visitor {
         return Integer.parseInt(ast.IL.spelling) * Machine.characterSize;
     }
 
+    public Object visitDynamicStringTypeDenoter(DynamicStringTypeDenoter ast, Object o) {
+        return Machine.addressSize;
+    }
+
     public Object visitNilTypeDenoter(NilTypeDenoter ast, Object o) {
         return new Integer(1);
     }
@@ -823,6 +861,10 @@ public final class Encoder implements Visitor {
             emit(Machine.LOADLop, 0, 0, c);
         }
 
+        return null;
+    }
+
+    public Object visitDynamicStringLiteral(DynamicStringLiteral ast, Object o) {
         return null;
     }
 

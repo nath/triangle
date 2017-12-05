@@ -51,6 +51,8 @@ public interface Visitor {
 
     public abstract Object visitFixedStringExpression(FixedStringExpression ast, Object o);
 
+    public abstract Object visitDynamicStringExpression(DynamicStringExpression ast, Object o);
+
     public abstract Object visitIfExpression(IfExpression ast, Object o);
 
     public abstract Object visitIntegerExpression(IntegerExpression ast, Object o);
@@ -164,6 +166,8 @@ public interface Visitor {
 
     public abstract Object visitFixedStringTypeDenoter(FixedStringTypeDenoter ast, Object o);
 
+    public abstract Object visitDynamicStringTypeDenoter(DynamicStringTypeDenoter ast, Object o);
+
     public abstract Object visitIntTypeDenoter(IntTypeDenoter ast, Object o);
 
     public abstract Object visitRecordTypeDenoter(RecordTypeDenoter ast, Object o);
@@ -180,6 +184,8 @@ public interface Visitor {
     public abstract Object visitCharacterLiteral(CharacterLiteral ast, Object o);
 
     public abstract Object visitFixedStringLiteral(FixedStringLiteral ast, Object o);
+
+    public abstract Object visitDynamicStringLiteral(DynamicStringLiteral ast, Object o);
 
     public abstract Object visitIdentifier(Identifier ast, Object o);
 

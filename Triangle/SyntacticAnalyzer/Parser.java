@@ -140,7 +140,7 @@ public class Parser {
         return CL;
     }
 
-// parseFixedStringLiteral parses a character-literal, and constructs a leaf
+// parseFixedStringLiteral parses a fixedstring-literal, and constructs a leaf
 // AST to represent it.
 
     FixedStringLiteral parseFixedStringLiteral() throws SyntaxError {
@@ -156,6 +156,24 @@ public class Parser {
             syntacticError("fixed string literal expected here", "");
         }
         return FSL;
+    }
+
+// parseDynamicStringLiteral parses a dynamicstring-literal, and constructs a leaf
+// AST to represent it.
+
+    DynamicStringLiteral parseDynamicStringLiteral() throws SyntaxError {
+        DynamicStringLiteral DSL = null;
+
+        if (currentToken.kind == Token.DYNAMICSTRING) {
+            previousTokenPosition = currentToken.position;
+            String spelling = currentToken.spelling.substring(1, currentToken.spelling.length() - 1);
+            DSL = new DynamicStringLiteral(spelling, previousTokenPosition);
+            currentToken = lexicalAnalyser.scan();
+        } else {
+            DSL = null;
+            syntacticError("dynamic string literal expected here", "");
+        }
+        return DSL;
     }
 
 // parseIdentifier parses an identifier, and constructs a leaf AST to
@@ -453,6 +471,13 @@ public class Parser {
                 FixedStringLiteral fsAST = parseFixedStringLiteral();
                 finish(expressionPos);
                 expressionAST = new FixedStringExpression(fsAST, expressionPos);
+            }
+            break;
+
+            case Token.DYNAMICSTRING: {
+                DynamicStringLiteral dsAST = parseDynamicStringLiteral();
+                finish(expressionPos);
+                expressionAST = new DynamicStringExpression(dsAST, expressionPos);
             }
             break;
 
@@ -1106,9 +1131,14 @@ public class Parser {
 
             case Token.STRING: {
                 acceptIt();
-                IntegerLiteral ilAST = parseIntegerLiteral();
-                finish(typePos);
-                typeAST = new FixedStringTypeDenoter(ilAST, typePos);
+                if (currentToken.kind == Token.INTLITERAL) {
+                    IntegerLiteral ilAST = parseIntegerLiteral();
+                    finish(typePos);
+                    typeAST = new FixedStringTypeDenoter(ilAST, typePos);
+                } else {
+                    finish(typePos);
+                    typeAST = new DynamicStringTypeDenoter(typePos);
+                }
             }
             break;
 

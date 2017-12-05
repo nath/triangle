@@ -260,6 +260,11 @@ public final class Checker implements Visitor {
         return ast.type;
     }
 
+    public Object visitDynamicStringExpression(DynamicStringExpression ast, Object o) {
+        ast.type = (TypeDenoter) ast.DSL.visit(this, o);
+        return ast.type;
+    }
+
     public Object visitIfExpression(IfExpression ast, Object o) {
         TypeDenoter e1Type = (TypeDenoter) ast.E1.visit(this, null);
         if (!e1Type.equals(StdEnvironment.booleanType))
@@ -832,6 +837,10 @@ public final class Checker implements Visitor {
         return ast;
     }
 
+    public Object visitDynamicStringTypeDenoter(DynamicStringTypeDenoter ast, Object o) {
+        return ast;
+    }
+
     public Object visitIntTypeDenoter(IntTypeDenoter ast, Object o) {
         return StdEnvironment.integerType;
     }
@@ -882,6 +891,10 @@ public final class Checker implements Visitor {
 
     public Object visitFixedStringLiteral(FixedStringLiteral FSL, Object o) {
         return new FixedStringTypeDenoter(new IntegerLiteral(FSL.spelling.length() + "", FSL.position), FSL.position);
+    }
+
+    public Object visitDynamicStringLiteral(DynamicStringLiteral ast, Object o) {
+        return new DynamicStringTypeDenoter(ast.position);
     }
 
     public Object visitIdentifier(Identifier I, Object o) {
@@ -1193,6 +1206,7 @@ public final class Checker implements Visitor {
         StdEnvironment.errorType = new ErrorTypeDenoter(dummyPos);
         StdEnvironment.nilType = new NilTypeDenoter(dummyPos);
         StdEnvironment.fixedStringType = new FixedStringTypeDenoter(new IntegerLiteral("-1", dummyPos), dummyPos);
+        StdEnvironment.dynamicStringType = new DynamicStringTypeDenoter(dummyPos);
         StdEnvironment.enumType = new EnumTypeDenoter(dummyPos);
 
         StdEnvironment.booleanDecl = declareStdType("Boolean", StdEnvironment.booleanType);
@@ -1215,6 +1229,9 @@ public final class Checker implements Visitor {
         StdEnvironment.notlessDecl = declareStdBinaryOp(">=", StdEnvironment.integerType, StdEnvironment.integerType, StdEnvironment.booleanType);
 
         StdEnvironment.fixedLexDecl = declareStdBinaryOp("<<", StdEnvironment.fixedStringType, StdEnvironment.fixedStringType, StdEnvironment.integerType);
+
+        StdEnvironment.dynamicConcatDecl = declareStdBinaryOp("++", StdEnvironment.dynamicStringType, StdEnvironment.dynamicStringType, StdEnvironment.dynamicStringType);
+        StdEnvironment.dynamicLexDecl = declareStdBinaryOp("<<<", StdEnvironment.dynamicStringType, StdEnvironment.dynamicStringType, StdEnvironment.integerType);
 
         StdEnvironment.succDecl = declareStdUnaryOp("succ", StdEnvironment.enumType, StdEnvironment.enumType);
         StdEnvironment.predDecl = declareStdUnaryOp("pred", StdEnvironment.enumType, StdEnvironment.enumType);

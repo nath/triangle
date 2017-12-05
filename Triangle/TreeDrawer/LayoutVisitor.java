@@ -111,6 +111,10 @@ public class LayoutVisitor implements Visitor {
         return layoutUnary("FixedStr.Expr.", ast.FSL);
     }
 
+    public Object visitDynamicStringExpression(DynamicStringExpression ast, Object o) {
+        return layoutUnary("DynamicStr.Expr.", ast.DSL);
+    }
+
     public Object visitIfExpression(IfExpression ast, Object obj) {
         if (ast.movedId != null) {
             if (seenExpressions.contains(ast))
@@ -357,6 +361,10 @@ public class LayoutVisitor implements Visitor {
         return layoutUnary("FixedStr.", ast.IL);
     }
 
+    public Object visitDynamicStringTypeDenoter(DynamicStringTypeDenoter ast, Object o) {
+        return layoutNullary("DynamicStr.");
+    }
+
     public Object visitIntTypeDenoter(IntTypeDenoter ast, Object obj) {
         return layoutNullary("int");
     }
@@ -390,6 +398,10 @@ public class LayoutVisitor implements Visitor {
     }
 
     public Object visitFixedStringLiteral(FixedStringLiteral ast, Object obj) {
+        return layoutNullary(ast.spelling);
+    }
+
+    public Object visitDynamicStringLiteral(DynamicStringLiteral ast, Object o) {
         return layoutNullary(ast.spelling);
     }
 

@@ -436,16 +436,16 @@ public class Interpreter {
                 if (!(data[ST] <= data[ST-1] && data[ST-1] < data[ST+1]))
                     status = failedRangecheckError;
                 break;
-            case Machine.fixedLexDisplacement:
+            case Machine.fixedLexDisplacement: {
                 ST = ST - 1;
                 int strLen = data[ST], lexResult = 1;
-                ST = ST - (2*strLen);
-                for (int i=0; i < strLen; i++) {
-                    if (data[ST+i] < data[ST+i+strLen]) {
+                ST = ST - (2 * strLen);
+                for (int i = 0; i < strLen; i++) {
+                    if (data[ST + i] < data[ST + i + strLen]) {
                         lexResult = 0;
                         break;
                     }
-                    if (data[ST+i] > data[ST+i+strLen]) {
+                    if (data[ST + i] > data[ST + i + strLen]) {
                         lexResult = 2;
                         break;
                     }
@@ -453,6 +453,68 @@ public class Interpreter {
                 data[ST] = lexResult;
                 ST++;
                 break;
+            }
+            case Machine.dynamicEqDisplacement: {
+                ST = ST - 1;
+                int addr1 = data[ST-1], addr2 = data[ST];
+                boolean res = true;
+                for (int i=1; i <= data[addr1]; i++) {
+                    if (data[addr1+i] != data[addr2+i]) {
+                        res = false;
+                        break;
+                    }
+                }
+                data[ST-1] = toInt(res);
+                break;
+            }
+            case Machine.dynamicNeDisplacement: {
+                ST = ST - 1;
+                int addr1 = data[ST-1], addr2 = data[ST];
+                boolean res = true;
+                for (int i=1; i <= data[addr1]; i++) {
+                    if (data[addr1+i] != data[addr2+i]) {
+                        res = false;
+                        break;
+                    }
+                }
+                data[ST-1] = toInt(!res);
+                break;
+            }
+            case Machine.dynamicConcatDisplacement: {
+                ST = ST - 1;
+                int addr1 = data[ST-1], addr2 = data[ST];
+                size = data[addr1] + data[addr2] + 1;
+                checkSpace(size);
+                HT = HT - size;
+                data[HT] = size - 1;
+                int offset = 1;
+                for (int i=1; i <= data[addr1]; i++, offset++) {
+                    data[HT + offset] = data[addr1+i];
+                }
+                for (int i=1; i <= data[addr2]; i++, offset++) {
+                    data[HT + offset] = data[addr2+i];
+                }
+                data[ST-1] = HT;
+                break;
+            }
+            case Machine.dynamicLexDisplacement: {
+                ST = ST - 1;
+                int addr1 = data[ST-1], addr2 = data[ST];
+                size = Math.min(data[addr1], data[addr2]);
+                int res = data[addr1] < data[addr2] ? 0 : data[addr1] > data[addr2] ? 2 : 1;
+                for (int i=1; i <= size; i++) {
+                    if (data[addr1+i] < data[addr2+i]) {
+                        res = 0;
+                        break;
+                    }
+                    if (data[addr1+i] > data[addr2+i]) {
+                        res = 2;
+                        break;
+                    }
+                }
+                data[ST-1] = res;
+                break;
+            }
         }
     }
 

@@ -134,6 +134,10 @@ public final class Machine {
             newDisplacement = 27,
             disposeDisplacement = 28,
             rangecheckDisplacement = 29,
-            fixedLexDisplacement = 30;
+            fixedLexDisplacement = 30,
+            dynamicEqDisplacement = 31,
+            dynamicNeDisplacement = 32,
+            dynamicConcatDisplacement = 33,
+            dynamicLexDisplacement = 34;
 
 }

@@ -109,6 +109,10 @@ public class IdReplacer implements Visitor {
         return null;
     }
 
+    public Object visitDynamicStringExpression(DynamicStringExpression ast, Object o) {
+        return null;
+    }
+
     public Object visitIfExpression(IfExpression ast, Object o) {
         if (ast.invariant) {
             String uuid = UUID.randomUUID().toString();
@@ -372,6 +376,10 @@ public class IdReplacer implements Visitor {
         return null;
     }
 
+    public Object visitDynamicStringTypeDenoter(DynamicStringTypeDenoter ast, Object o) {
+        return null;
+    }
+
     public Object visitIntTypeDenoter(IntTypeDenoter ast, Object o) {
         return null;
     }
@@ -401,6 +409,10 @@ public class IdReplacer implements Visitor {
     }
 
     public Object visitFixedStringLiteral(FixedStringLiteral ast, Object o) {
+        return null;
+    }
+
+    public Object visitDynamicStringLiteral(DynamicStringLiteral ast, Object o) {
         return null;
     }
 
