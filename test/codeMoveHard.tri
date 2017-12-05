@@ -1,0 +1,10 @@
+let
+    var i := 1;
+    var c: record foo: Char, bar: Char end 
+in
+    while i < 5 do
+        begin
+        c := {foo ~ 'a', bar ~ 'b'};
+        put(c.foo);
+        i := i+1
+        end

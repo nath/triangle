@@ -102,25 +102,25 @@ final class Token extends Object {
             WHILE = 37,
 
             // punctuation...
-            DOT = 121,
-            COLON = 122,
-            SEMICOLON = 123,
-            COMMA = 124,
-            BECOMES = 125,
-            IS = 126,
+            DOT = 38,
+            COLON = 39,
+            SEMICOLON = 40,
+            COMMA = 41,
+            BECOMES = 42,
+            IS = 43,
 
             // brackets...
-            LPAREN = 227,
-            RPAREN = 228,
-            LBRACKET = 229,
-            RBRACKET = 230,
-            LCURLY = 231,
-            RCURLY = 232,
-            CASH = 233,
+            LPAREN = 44,
+            RPAREN = 45,
+            LBRACKET = 46,
+            RBRACKET = 47,
+            LCURLY = 48,
+            RCURLY = 49,
+            CASH = 50,
 
             // special tokens...
-            EOT = 333,
-            ERROR = 334;
+            EOT = 51,
+            ERROR = 52;
 
     private static String[] tokenTable = new String[]{
             "<int>",
