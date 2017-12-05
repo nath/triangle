@@ -21,6 +21,7 @@ import Triangle.ErrorReporter;
 import Triangle.StdEnvironment;
 
 import javax.crypto.Mac;
+import javax.lang.model.type.ArrayType;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -159,6 +160,8 @@ public final class Encoder implements Visitor {
         Frame frame1 = new Frame(frame, valSize1);
         int valSize2 = ((Integer) ast.E2.visit(this, frame1)).intValue();
         Frame frame2 = new Frame(frame.level, valSize1 + valSize2);
+        if (ast.O.spelling.equals("<<"))
+            emit(Machine.LOADLop, 0, 0, (Integer) ast.E1.type.visit(this, null));
         ast.O.visit(this, frame2);
         return valSize;
     }
@@ -176,6 +179,12 @@ public final class Encoder implements Visitor {
         Frame frame = (Frame) o;
         Integer valSize = (Integer) ast.type.visit(this, null);
         emit(Machine.LOADLop, 0, 0, ast.CL.spelling.charAt(1));
+        return valSize;
+    }
+
+    public Object visitFixedStringExpression(FixedStringExpression ast, Object o) {
+        Integer valSize = (Integer) ast.type.visit(this, null);
+        ast.FSL.visit(this, null);
         return valSize;
     }
 
@@ -380,7 +389,10 @@ public final class Encoder implements Visitor {
         extraSize = ((Integer) ast.T.visit(this, null)).intValue();
         emit(Machine.PUSHop, 0, 0, extraSize);
         ast.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size);
-        ((KnownAddress) ast.entity).arrLen = extraSize / ((ArrayTypeDenoter) ast.T).T.entity.size;
+        if (ast.T instanceof ArrayTypeDenoter)
+            ((KnownAddress) ast.entity).arrLen = extraSize / ((ArrayTypeDenoter) ast.T).T.entity.size;
+        if (ast.T instanceof FixedStringTypeDenoter)
+            ((KnownAddress) ast.entity).arrLen = Integer.parseInt(((FixedStringTypeDenoter) ast.T).IL.spelling);
         writeTableDetails(ast);
         return new Integer(extraSize);
     }
@@ -620,6 +632,10 @@ public final class Encoder implements Visitor {
         return new Integer(0);
     }
 
+    public Object visitFixedStringTypeDenoter(FixedStringTypeDenoter ast, Object o) {
+        return Integer.parseInt(ast.IL.spelling) * Machine.characterSize;
+    }
+
     public Object visitNilTypeDenoter(NilTypeDenoter ast, Object o) {
         return new Integer(1);
     }
@@ -701,6 +717,16 @@ public final class Encoder implements Visitor {
         return null;
     }
 
+    public Object visitFixedStringLiteral(FixedStringLiteral ast, Object o) {
+        Frame frame = (Frame) o;
+
+        for (Character c : ast.spelling.toCharArray()) {
+            emit(Machine.LOADLop, 0, 0, c);
+        }
+
+        return null;
+    }
+
     public Object visitIdentifier(Identifier ast, Object o) {
         Frame frame = (Frame) o;
         if (ast.decl.entity instanceof KnownRoutine) {
@@ -779,7 +805,7 @@ public final class Encoder implements Visitor {
         int arrLen = baseObject instanceof KnownAddress ? ((KnownAddress) baseObject).arrLen : ((UnknownValue) baseObject).size;
         ast.offset = ast.V.offset;
         ast.indexed = ast.V.indexed;
-        elemSize = ((Integer) ast.type.visit(this, null)).intValue();
+        elemSize = (Integer) ast.type.visit(this, null);
         if (ast.E instanceof IntegerExpression) {
             IntegerLiteral IL = ((IntegerExpression) ast.E).IL;
             ast.offset = ast.offset + Integer.parseInt(IL.spelling) * elemSize;
@@ -882,6 +908,7 @@ public final class Encoder implements Visitor {
         elaborateStdPrimRoutine(StdEnvironment.notgreaterDecl, Machine.leDisplacement);
         elaborateStdPrimRoutine(StdEnvironment.greaterDecl, Machine.gtDisplacement);
         elaborateStdPrimRoutine(StdEnvironment.notlessDecl, Machine.geDisplacement);
+        elaborateStdPrimRoutine(StdEnvironment.fixedLexDecl, Machine.fixedLexDisplacement);
         elaborateStdPrimRoutine(StdEnvironment.chrDecl, Machine.idDisplacement);
         elaborateStdPrimRoutine(StdEnvironment.ordDecl, Machine.idDisplacement);
         elaborateStdPrimRoutine(StdEnvironment.eolDecl, Machine.eolDisplacement);

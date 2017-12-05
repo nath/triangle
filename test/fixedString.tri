@@ -1,0 +1,19 @@
+let
+    var s : string 5;
+    var t : string 5;
+
+    !print which is lexicographically first, or e if equal
+    proc printFirst(s: string 5, t: string 5) ~
+        if s = t then
+            put('e')
+        else
+            if (s << t) = 0 then
+                putint(1)
+            else
+                putint(2)
+in
+    begin
+    printFirst(`hello`, `helln`); puteol();
+    printFirst(`hello`, `hello`); puteol();
+    printFirst(`hello`, `hellp`); puteol()
+    end

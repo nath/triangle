@@ -49,6 +49,8 @@ public interface Visitor {
 
     public abstract Object visitEmptyExpression(EmptyExpression ast, Object o);
 
+    public abstract Object visitFixedStringExpression(FixedStringExpression ast, Object o);
+
     public abstract Object visitIfExpression(IfExpression ast, Object o);
 
     public abstract Object visitIntegerExpression(IntegerExpression ast, Object o);
@@ -146,6 +148,8 @@ public interface Visitor {
 
     public abstract Object visitSimpleTypeDenoter(SimpleTypeDenoter ast, Object o);
 
+    public abstract Object visitFixedStringTypeDenoter(FixedStringTypeDenoter ast, Object o);
+
     public abstract Object visitIntTypeDenoter(IntTypeDenoter ast, Object o);
 
     public abstract Object visitRecordTypeDenoter(RecordTypeDenoter ast, Object o);
@@ -156,6 +160,8 @@ public interface Visitor {
 
     // Literals, Identifiers and Operators
     public abstract Object visitCharacterLiteral(CharacterLiteral ast, Object o);
+
+    public abstract Object visitFixedStringLiteral(FixedStringLiteral ast, Object o);
 
     public abstract Object visitIdentifier(Identifier ast, Object o);
 

@@ -133,6 +133,7 @@ public final class Machine {
             putintDisplacement = 26,
             newDisplacement = 27,
             disposeDisplacement = 28,
-            rangecheckDisplacement = 29;
+            rangecheckDisplacement = 29,
+            fixedLexDisplacement = 30;
 
 }

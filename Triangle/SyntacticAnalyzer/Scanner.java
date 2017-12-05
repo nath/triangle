@@ -186,6 +186,20 @@ public final class Scanner {
                 } else
                     return Token.ERROR;
 
+            case '`':
+                takeIt();
+                while (currentChar != '`')
+                    takeIt();
+                takeIt();
+                return Token.FIXEDSTRING;
+
+            case '"':
+                takeIt();
+                while (currentChar != '"')
+                    takeIt();
+                takeIt();
+                return Token.DYNAMICSTRING;
+
             case '.':
                 takeIt();
                 return Token.DOT;

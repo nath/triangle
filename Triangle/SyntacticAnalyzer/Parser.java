@@ -15,6 +15,7 @@
 package Triangle.SyntacticAnalyzer;
 
 import Triangle.AbstractSyntaxTrees.*;
+import Triangle.CodeGenerator.Field;
 import Triangle.ErrorReporter;
 
 public class Parser {
@@ -137,6 +138,24 @@ public class Parser {
             syntacticError("character literal expected here", "");
         }
         return CL;
+    }
+
+// parseFixedStringLiteral parses a character-literal, and constructs a leaf
+// AST to represent it.
+
+    FixedStringLiteral parseFixedStringLiteral() throws SyntaxError {
+        FixedStringLiteral FSL = null;
+
+        if (currentToken.kind == Token.FIXEDSTRING) {
+            previousTokenPosition = currentToken.position;
+            String spelling = currentToken.spelling.substring(1, currentToken.spelling.length() - 1);
+            FSL = new FixedStringLiteral(spelling, previousTokenPosition);
+            currentToken = lexicalAnalyser.scan();
+        } else {
+            FSL = null;
+            syntacticError("fixed string literal expected here", "");
+        }
+        return FSL;
     }
 
 // parseIdentifier parses an identifier, and constructs a leaf AST to
@@ -406,6 +425,13 @@ public class Parser {
                 CharacterLiteral clAST = parseCharacterLiteral();
                 finish(expressionPos);
                 expressionAST = new CharacterExpression(clAST, expressionPos);
+            }
+            break;
+
+            case Token.FIXEDSTRING: {
+                FixedStringLiteral fsAST = parseFixedStringLiteral();
+                finish(expressionPos);
+                expressionAST = new FixedStringExpression(fsAST, expressionPos);
             }
             break;
 
@@ -901,6 +927,13 @@ public class Parser {
             }
             break;
 
+            case Token.FIXEDSTRING: {
+                FixedStringLiteral flAST = parseFixedStringLiteral();
+                finish(actualPos);
+                actualAST = new ConstActualParameter(new FixedStringExpression(flAST, actualPos), actualPos);
+            }
+            break;
+
             default:
                 syntacticError("\"%\" cannot start an actual parameter",
                         currentToken.spelling);
@@ -947,6 +980,14 @@ public class Parser {
                 accept(Token.END);
                 finish(typePos);
                 typeAST = new RecordTypeDenoter(fAST, typePos);
+            }
+            break;
+
+            case Token.STRING: {
+                acceptIt();
+                IntegerLiteral ilAST = parseIntegerLiteral();
+                finish(typePos);
+                typeAST = new FixedStringTypeDenoter(ilAST, typePos);
             }
             break;
 

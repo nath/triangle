@@ -201,6 +201,11 @@ public final class Checker implements Visitor {
         return ast.type;
     }
 
+    public Object visitFixedStringExpression(FixedStringExpression ast, Object o) {
+        ast.type = (TypeDenoter) ast.FSL.visit(this, o);
+        return ast.type;
+    }
+
     public Object visitIfExpression(IfExpression ast, Object o) {
         TypeDenoter e1Type = (TypeDenoter) ast.E1.visit(this, null);
         if (!e1Type.equals(StdEnvironment.booleanType))
@@ -655,7 +660,7 @@ public final class Checker implements Visitor {
 
     public Object visitArrayTypeDenoter(ArrayTypeDenoter ast, Object o) {
         ast.T = (TypeDenoter) ast.T.visit(this, null);
-        if ((Integer.valueOf(ast.IL.spelling).intValue()) == 0)
+        if (Integer.valueOf(ast.IL.spelling) == 0)
             reporter.reportError("arrays must not be empty", "", ast.IL.position);
         return ast;
     }
@@ -690,6 +695,12 @@ public final class Checker implements Visitor {
         return ((TypeDeclaration) binding).T;
     }
 
+    public Object visitFixedStringTypeDenoter(FixedStringTypeDenoter ast, Object o) {
+        if (Integer.valueOf(ast.IL.spelling) < 1)
+            reporter.reportError("fixed string lengths must be >= 1", "", ast.IL.position);
+        return ast;
+    }
+
     public Object visitIntTypeDenoter(IntTypeDenoter ast, Object o) {
         return StdEnvironment.integerType;
     }
@@ -716,6 +727,10 @@ public final class Checker implements Visitor {
     // Literals, Identifiers and Operators
     public Object visitCharacterLiteral(CharacterLiteral CL, Object o) {
         return StdEnvironment.charType;
+    }
+
+    public Object visitFixedStringLiteral(FixedStringLiteral FSL, Object o) {
+        return new FixedStringTypeDenoter(new IntegerLiteral(FSL.spelling.length() + "", FSL.position), FSL.position);
     }
 
     public Object visitIdentifier(Identifier I, Object o) {
@@ -804,13 +819,16 @@ public final class Checker implements Visitor {
         ast.variable = ast.V.variable;
         TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);
         if (vType != StdEnvironment.errorType) {
-            if (!(vType instanceof ArrayTypeDenoter))
-                reporter.reportError("array expected here", "", ast.V.position);
+            if (!(vType instanceof ArrayTypeDenoter || vType instanceof FixedStringTypeDenoter))
+                reporter.reportError("array or string expected here", "", ast.V.position);
             else {
                 if (!eType.equals(StdEnvironment.integerType))
                     reporter.reportError("Integer expression expected here", "",
                             ast.E.position);
-                ast.type = ((ArrayTypeDenoter) vType).T;
+                if (vType instanceof ArrayTypeDenoter)
+                    ast.type = ((ArrayTypeDenoter) vType).T;
+                else
+                    ast.type = StdEnvironment.charType;
             }
         }
         return ast.type;
@@ -977,6 +995,7 @@ public final class Checker implements Visitor {
         StdEnvironment.anyType = new AnyTypeDenoter(dummyPos);
         StdEnvironment.errorType = new ErrorTypeDenoter(dummyPos);
         StdEnvironment.nilType = new NilTypeDenoter(dummyPos);
+        StdEnvironment.fixedStringType = new FixedStringTypeDenoter(new IntegerLiteral("-1", dummyPos), dummyPos);
 
         StdEnvironment.booleanDecl = declareStdType("Boolean", StdEnvironment.booleanType);
         StdEnvironment.falseDecl = declareStdConst("false", StdEnvironment.booleanType);
@@ -996,6 +1015,8 @@ public final class Checker implements Visitor {
         StdEnvironment.notgreaterDecl = declareStdBinaryOp("<=", StdEnvironment.integerType, StdEnvironment.integerType, StdEnvironment.booleanType);
         StdEnvironment.greaterDecl = declareStdBinaryOp(">", StdEnvironment.integerType, StdEnvironment.integerType, StdEnvironment.booleanType);
         StdEnvironment.notlessDecl = declareStdBinaryOp(">=", StdEnvironment.integerType, StdEnvironment.integerType, StdEnvironment.booleanType);
+
+        StdEnvironment.fixedLexDecl = declareStdBinaryOp("<<", StdEnvironment.fixedStringType, StdEnvironment.fixedStringType, StdEnvironment.integerType);
 
         StdEnvironment.charDecl = declareStdType("Char", StdEnvironment.charType);
         StdEnvironment.chrDecl = declareStdFunc("chr", new SingleFormalParameterSequence(

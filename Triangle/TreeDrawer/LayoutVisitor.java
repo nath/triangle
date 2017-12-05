@@ -92,6 +92,10 @@ public class LayoutVisitor implements Visitor {
         return layoutNullary("EmptyExpr.");
     }
 
+    public Object visitFixedStringExpression(FixedStringExpression ast, Object obj) {
+        return layoutUnary("FixedStr.Expr.", ast.FSL);
+    }
+
     public Object visitIfExpression(IfExpression ast, Object obj) {
         return layoutTernary("IfExpr.", ast.E1, ast.E2, ast.E3);
     }
@@ -287,6 +291,10 @@ public class LayoutVisitor implements Visitor {
         return layoutUnary("Sim.TypeD.", ast.I);
     }
 
+    public Object visitFixedStringTypeDenoter(FixedStringTypeDenoter ast, Object obj) {
+        return layoutUnary("FixedStr.", ast.IL);
+    }
+
     public Object visitIntTypeDenoter(IntTypeDenoter ast, Object obj) {
         return layoutNullary("int");
     }
@@ -310,6 +318,10 @@ public class LayoutVisitor implements Visitor {
 
     // Literals, Identifiers and Operators
     public Object visitCharacterLiteral(CharacterLiteral ast, Object obj) {
+        return layoutNullary(ast.spelling);
+    }
+
+    public Object visitFixedStringLiteral(FixedStringLiteral ast, Object obj) {
         return layoutNullary(ast.spelling);
     }
 

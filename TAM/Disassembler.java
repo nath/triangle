@@ -229,6 +229,9 @@ public class Disassembler {
             case Machine.rangecheckDisplacement:
                 System.out.print("rangecheck ");
                 break;
+            case Machine.fixedLexDisplacement:
+                System.out.print("fixedLex ");
+                break;
         }
     }
 

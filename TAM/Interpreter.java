@@ -436,6 +436,23 @@ public class Interpreter {
                 if (!(data[ST] <= data[ST-1] && data[ST-1] < data[ST+1]))
                     status = failedRangecheckError;
                 break;
+            case Machine.fixedLexDisplacement:
+                ST = ST - 1;
+                int strLen = data[ST], lexResult = 1;
+                ST = ST - (2*strLen);
+                for (int i=0; i < strLen; i++) {
+                    if (data[ST+i] < data[ST+i+strLen]) {
+                        lexResult = 0;
+                        break;
+                    }
+                    if (data[ST+i] > data[ST+i+strLen]) {
+                        lexResult = 2;
+                        break;
+                    }
+                }
+                data[ST] = lexResult;
+                ST++;
+                break;
         }
     }
 
